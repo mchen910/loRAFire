@@ -1,14 +1,14 @@
 const mongoose = require('mongoose');
-const { Types } = mongoose
 
 const dataSchema = new mongoose.Schema({
-    gatewayID: Types.ObjectId,
+    _id: mongoose.Types.ObjectId,
+    gatewayID: mongoose.Types.ObjectId,
     location: {
-        latitude: Types.Decimal128,
+        latitude: mongoose.Types.Decimal128,
         longitude: Number
     },
     batteryLevel: Number,
     online: Boolean
 })
 
-module.exports = mongoose.model('Data', dataSchema)
+module.exports = mongoose.model('Gateway', dataSchema)
