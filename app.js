@@ -1,32 +1,49 @@
+var createError = require('http-errors');
 var express = require('express');
-var subdomain = require('./middleware/subdomain')
+var mongoose = require('mongoose');
 
-const app = express();
-const port = 3000;
+var app = express();
 
-var subRouter = express.Router();
-var router = express.Router();
+const indexRouter = require('./routes/index');
+const apiRouter = require('./routes/api');
 
-// API specific
-subRouter.get('/', (req, res) => {
-    res.send('API');
-})
+// Setting up database connection
+require('dotenv').config();
+var mongoDB = process.env.DATABASE_URL;
+
+mongoose.connect(mongoDB, {useNewUrlParser: true, useUnifiedTopology: true});
+mongoose.Promise = global.Promise;
+var db = mongoose.connection;
+db.on('connection', () => console.log("Successfully connected"));
+db.on('error', () => console.error.bind(console, 'MongoDB connection error'));
 
 
-subRouter.get('/users', (req, res) => {
-    res.json([
-        { name: "Brian" }
-    ]);
-});
+// Set up routes
 
-router.get('/', (req, res) => {
-    res.send('Hello world!');
-})
 
-app.use(subdomain('api', subRouter));
-app.use('/', router)
+app.use('/', indexRouter);
+app.use('/api/v1', apiRouter);
 
-app.listen(port, () => {
-    console.log(`listening on port ${port}`)
-})
 
+
+// catch 404 and forward to error handler
+app.use(function(req, res, next) {
+    next(createError(404));
+  });
+  
+  // error handler
+  app.use(function(err, req, res, next) {
+    // set locals, only providing error in development
+    res.locals.message = err.message;
+    res.locals.error = req.app.get('env') === 'development' ? err : {};
+  
+    // render the error page
+    res.status(err.status || 500);
+    res.json({
+        message: err.message,
+        error: err
+      });
+  });
+  
+
+module.exports = app;
