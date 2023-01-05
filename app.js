@@ -1,26 +1,34 @@
 var createError = require('http-errors');
 var express = require('express');
 var mongoose = require('mongoose');
+var bodyParser = require('body-parser');
 
 var app = express();
 
 const indexRouter = require('./routes/index');
 const apiRouter = require('./routes/api');
 
-// Setting up database connection
-require('dotenv').config();
-var mongoDB = process.env.DATABASE_URL;
+// app.set("view engine", "ejs");
+// app.use(express.static("public"));
+// app.use(bodyParser.urlencoded({extended: true}));
 
+require('dotenv').config();
+
+// Setting up database connection
+var mongoDB = process.env.DATABASE_URL;
 mongoose.connect(mongoDB, {useNewUrlParser: true, useUnifiedTopology: true});
 mongoose.Promise = global.Promise;
+
 var db = mongoose.connection;
 db.on('connection', () => console.log("Successfully connected"));
 db.on('error', () => console.error.bind(console, 'MongoDB connection error'));
 
 
+// Validate the JSON data
+app.use(express.json);
+
+
 // Set up routes
-
-
 app.use('/', indexRouter);
 app.use('/api/v1', apiRouter);
 
