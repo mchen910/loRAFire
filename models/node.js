@@ -7,21 +7,24 @@ const NodeSchema = new Schema({
     name: {
         type: String,
         minLength: 5,
-        maxLength: 30, 
+        maxLength: 30,
     },
 
     // There is no N/S, W/E, just positive and negative values
     location: {
-        latitude: Types.Decimal128,
-        longitude: Types.Decimal128,
+        latitude: Number,
+        longitude: Number,
     },
 
     online: { type: Boolean, default: true },
 
-    gatewayID: { type: Types.ObjectId, ref: 'Gateway', required: true},
+    gatewayID: { type: Types.ObjectId, ref: 'Gateway', required: true },
     hSensorID: { type: Types.ObjectId },
     sSensorID: { type: Types.ObjectId }
-})
+},
+
+    { versionKey: false }
+)
 
 
 // // Virtual methods (getters for computed values)

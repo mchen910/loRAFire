@@ -4,7 +4,7 @@ var Schema = mongoose.Schema;
 var Types = mongoose.Types;
 
 const HistorySchema = new Schema({
-    nodeID: { type: String, ref: 'Node', required: true },
+    nodeID: { type: Types.ObjectId, ref: 'Node' },
     humidSensor: {
         battery: Number,
         humidity: Number,
@@ -15,8 +15,9 @@ const HistorySchema = new Schema({
     }
 },
     {
-        timestamps: true
-    }
+        timestamps: true,
+        versionKey: false
+    },
 );
 
 module.exports = mongoose.model('History', HistorySchema)
