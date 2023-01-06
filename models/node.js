@@ -12,7 +12,7 @@ const NodeSchema = new Schema({
 
     online: { type: Boolean, default: true },
 
-    gatewayID: { type: Types.ObjectId, ref: 'Gateway', required: true },
+    gatewayID: { type: Types.ObjectId },
     hSensorID: { type: Types.ObjectId },
     sSensorID: { type: Types.ObjectId }
 },
