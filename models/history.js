@@ -4,7 +4,7 @@ var Schema = mongoose.Schema;
 var Types = mongoose.Types;
 
 const HistorySchema = new Schema({
-    nodeID: { type: Types.ObjectId, ref: 'Node' },
+    nodeID: Types.ObjectId,
     humidSensor: {
         battery: Number,
         humidity: Number,
