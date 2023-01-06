@@ -10,53 +10,56 @@ const historyController = require('../controllers/history');
 /* ================ NODE ROUTES ================== */
 
 // GET request for a list of nodes
-router.get('/nodes', nodeController.GET_nodeList);
+router.get('/nodes', nodeController.node_index);
 
 // GET request for a node by its id
-router.get('/node/:id', nodeController.GET_nodeID);
+router.get('/nodes/:id', nodeController.node_show);
 
 // POST request for creating a new node entry
-router.post('/node/create', nodeController.POST_node);
+router.post('/nodes', nodeController.node_create);
 
 // DELETE request for deleting an existing node
-router.delete('/node/:id/delete', nodeController.DELETE_node);
+router.delete('/nodes/:id', nodeController.node_destroy);
 
 // UPDATE request for updating a node
-router.put('/node/:id/update', nodeController.PUT_node)
+router.put('/nodes/:id', nodeController.node_update);
 
 
 /* ================ GATEWAY ROUTES ================== */
 
 // GET request for a list of gateways
-router.get('/gateways', gatewayController.GET_gatewayList);
+router.get('/gateways', gatewayController.gateway_index);
 
 // GET request for a gateway by its id
-router.get('/gateway/:id', gatewayController.GET_gatewayID);
+router.get('/gateways/:id', gatewayController.gateway_show);
 
 // POST request for creating a new gateway entry
-router.post('/gateway/create', gatewayController.POST_gateway);
+router.post('/gateways', gatewayController.gateway_create);
 
 // DELETE request for deleting an existing gateway
-router.delete('/gateway/:id/delete', gatewayController.DELETE_gateway);
+router.delete('/gateways/:id', gatewayController.gateway_destroy);
 
 // UPDATE request for updating a gateway
-router.put('/gateway/:id/update', gatewayController.PUT_gateway)
+router.put('/gateways/:id', gatewayController.gateway_update);
 
 
 
 /* ================ HISTORY ROUTES ================== */
 
 // GET request for a list of nodes
-router.get('/history', historyController.GET_history);
+router.get('/history', historyController.history_index);
 
 // GET request for the history of a node by its id
-router.get('/history/:id', historyController.GET_historyID);
+router.get('/history/:id', historyController.history_show);
 
 // POST request for creating a new history entry
-router.post('/history/create', historyController.POST_history);
+router.post('/history', historyController.history_create);
 
 // DELETE request for deleting an existing history entry
-router.delete('/history/:id/delete', historyController.DELETE_history);
+router.delete('/history/:id', historyController.history_destroy);
+
+// PUT request for updating history
+router.put('history/:id', historyController.hitory_update);
 
 
 module.exports = router;
