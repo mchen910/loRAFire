@@ -3,10 +3,9 @@ var { body, validationResult } = require('express-validator');
 var Node = require('../models/node');
 var Gateway = require('../models/gateway');
 
-
 // GET request for a list of nodes
-exports.node_index = async (req, res, next) => {
-    await Node.find(function(err, nodeList) {
+exports.node_index = (req, res, next) => {
+    Node.find(function (err, nodeList) {
         if (err) {
             next(err);
             return;
@@ -17,9 +16,9 @@ exports.node_index = async (req, res, next) => {
 };
 
 // GET request for a node by its id
-exports.node_new = async (req, res, next) => {
-    const node = await Node.findById(req.params.id);
-    const gateway = await Gateway.findById(node.gatewayID);
+exports.node_show = (req, res, next) => {
+    const node = Node.findById(req.params.id);
+    const gateway = Gateway.findById(node.gatewayID);
 
     if (!node) {
         var err = new Error("Node not found");
@@ -73,7 +72,7 @@ exports.node_create = [
         .optional()
         .isMongoId()
         .withMessage('Invalid gateway ID'),
-    
+
     (req, res, next) => {
         // Extract errors
         const errors = validationResult(req);
@@ -96,7 +95,7 @@ exports.node_create = [
         } else {
             node.save(function (err) {
                 if (err) {
-                    return next(err)
+                    return next(err);
                 }
             });
         }
@@ -114,15 +113,19 @@ exports.node_update = [
         .isAlphanumeric()
         .withMessage('Name has nonalphanumeric characters'),
     body('location.latitude')
+        .exists()
         .isFloat({ min: -180.0, max: 180.0 })
         .withMessage('Invalid latitude'),
     body('location.longitude')
+        .exists()
         .isFloat({ min: -180.0, max: 180.0 })
         .withMessage('Invalid longitude'),
     body('online')
+        .exists()
         .isBoolean()
         .withMessage('Not a boolean value'),
     body('gatewayID')
+        .exists()
         .isMongoId()
         .withMessage('Invalid gateway ID'),
     body('hSensorID')
@@ -133,7 +136,7 @@ exports.node_update = [
         .optional()
         .isMongoId()
         .withMessage('Invalid gateway ID'),
-    
+
     (req, res, next) => {
         const errors = validationResult(req);
 
@@ -170,13 +173,13 @@ exports.node_update = [
 ]
 
 // DELETE request for deleting an existing node
-exports.node_destroy = async (req, res, next) => {
+exports.node_destroy = (req, res, next) => {
     const node = Node.findById(req.params.id);
     var gateway = Gateway.findById(node.gatewayID);
 
     if (!node) {
         var err = new Error("Node not found");
-        err.status = 400;
+        err.status = 404;
         return next(err);
     }
     if (!gateway) {
@@ -190,6 +193,11 @@ exports.node_destroy = async (req, res, next) => {
     gateway.nodes.splice(idx, 1);
 
     // Finally delete the node
-    Node.findByIdAndRemove(req.params.id);
-    res.status(200).redirect('/api/v1/nodes')
+    Node.findByIdAndRemove(req.params.id, function (err) {
+        if (err) {
+            return next(err);
+        }
+
+        res.status(204);
+    });
 }

@@ -1,5 +1,10 @@
+var { body, validationResult } = require('express-validator');
+
+var Node = require('../models/node');
+var Gateway = require('../models/gateway');
+
 // GET request for a list of gateways
-exports.GET_gatewayList = (req, res) => {
+exports.GET_gatewayList = (req, res, next) => {
     res.send('not implemented yet, returns list of gateways');
 };
 
