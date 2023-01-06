@@ -59,7 +59,7 @@ router.post('/history', historyController.history_create);
 router.delete('/history/:id', historyController.history_destroy);
 
 // PUT request for updating history
-router.put('history/:id', historyController.hitory_update);
+router.put('history/:id', historyController.history_update);
 
 
 module.exports = router;

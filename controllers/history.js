@@ -178,7 +178,7 @@ exports.history_show = (req, res, next) => {
 };
 
 // No reason to implement a PUT request
-exports.hitory_update = (req, res, next) => {
+exports.history_update = (req, res, next) => {
     // Return 501 Not Implemented
     res.status(501)
 }

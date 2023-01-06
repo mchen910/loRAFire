@@ -58,11 +58,11 @@ exports.node_create = [
     body('hSensorID')
         .optional()
         .isMongoId()
-        .withMessage('Invalid gateway ID'),
+        .withMessage('Invalid humidity sensor ID'),
     body('sSensorID')
         .optional()
         .isMongoId()
-        .withMessage('Invalid gateway ID'),
+        .withMessage('Invalid smoke sensor ID'),
 
     (req, res, next) => {
         // Extract errors
