@@ -24,7 +24,7 @@ exports.history_index = [
         .isBoolean()
         .withMessage('Missing smoke indication (true/false)'),
 
-    async (req, res, next) => {
+    (req, res, next) => {
         const errors = validationResult(req);
         if (!errors.isEmpty()) {
             res.status(400).json({
@@ -82,7 +82,7 @@ exports.history_create = [
         .isFloat({min: 0})
         .withMessage('Invalid smoke reading'),
 
-    async (req, res, next) => {
+    (req, res, next) => {
         // Extract errors
         const errors = validationResult(req);
 
@@ -120,7 +120,7 @@ exports.history_destroy = [
         .isInt({ gt: 1e13 })
         .withMessage('Invalid end timestamp'),
 
-    async (req, res, next) => {
+    (req, res, next) => {
         // Extract errors
         const errors = validationResult(req);
 
@@ -165,7 +165,7 @@ exports.history_destroy = [
 ]
 
 // GET request for the history of a node by its id
-exports.history_show = async (req, res, next) => {
+exports.history_show = (req, res, next) => {
     History.find({ 'nodeID': req.params.id })
         .sort([['timestamp', 'ascending']])
         .exec(function (err, histories) {
@@ -178,7 +178,7 @@ exports.history_show = async (req, res, next) => {
 };
 
 // No reason to implement a PUT request
-exports.hitory_update = async (req, res, next) => {
+exports.hitory_update = (req, res, next) => {
     // Return 501 Not Implemented
     res.status(501)
 }

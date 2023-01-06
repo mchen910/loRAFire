@@ -7,11 +7,10 @@ var Gateway = require('../models/gateway');
 exports.node_index = (req, res, next) => {
     Node.find(function (err, nodeList) {
         if (err) {
-            next(err);
-            return;
+            return next(err);
         }
 
-        res.status(200).json(nodeList);
+        return res.status(200).json(nodeList);
     })
 };
 
@@ -44,14 +43,6 @@ exports.node_show = (req, res, next) => {
 
 // POST request for creating a new node entry
 exports.node_create = [
-    body('name')
-        .optional()
-        .trim()
-        .isLength({ min: 5, max: 30 })
-        .escape()
-        .withMessage('Name must be between 5 and 30 characters.')
-        .isAlphanumeric()
-        .withMessage('Name has nonalphanumeric characters'),
     body('location.latitude')
         .isFloat({ min: -180.0, max: 180.0 })
         .withMessage('Invalid latitude'),
@@ -78,7 +69,6 @@ exports.node_create = [
         const errors = validationResult(req);
 
         var node = new Node({
-            name: req.body.name,
             location: req.body.location,
             online: req.body.online,
             gatewayID: req.body.gatewayID,
@@ -87,10 +77,9 @@ exports.node_create = [
         });
 
         if (!errors.isEmpty()) {
-            res.status(422).json({
+            return res.status(422).json({
                 errors: errors.array()
             });
-            return;
 
         } else {
             node.save(function (err) {
@@ -104,14 +93,6 @@ exports.node_create = [
 
 // UPDATE request for updating a node
 exports.node_update = [
-    body('name')
-        .optional()
-        .trim()
-        .isLength({ min: 5, max: 30 })
-        .escape()
-        .withMessage('Name must be between 5 and 30 characters.')
-        .isAlphanumeric()
-        .withMessage('Name has nonalphanumeric characters'),
     body('location.latitude')
         .exists()
         .isFloat({ min: -180.0, max: 180.0 })
@@ -141,7 +122,6 @@ exports.node_update = [
         const errors = validationResult(req);
 
         var node = new Node({
-            name: req.body.name,
             location: req.body.location,
             online: req.body.online,
             gatewayID: req.body.gatewayID,
@@ -150,10 +130,9 @@ exports.node_update = [
         });
 
         if (!errors.isEmpty()) {
-            res.status(422).json({
+            return res.status(422).json({
                 errors: errors.array()
             });
-            return;
 
         } else {
             Node.findByIdAndUpdate(
@@ -165,6 +144,7 @@ exports.node_update = [
                         return next(err);
                     }
 
+                    // redirect??
                     res.redirect(_node.url)
                 }
             );
@@ -193,11 +173,11 @@ exports.node_destroy = (req, res, next) => {
     gateway.nodes.splice(idx, 1);
 
     // Finally delete the node
-    Node.findByIdAndRemove(req.params.id, function (err) {
+    Node.findByIdAndDelete(req.params.id, function (err) {
         if (err) {
             return next(err);
         }
 
-        res.status(204);
+        return res.status(204);
     });
 }
