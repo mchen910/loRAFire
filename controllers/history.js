@@ -2,10 +2,7 @@ var { body, validationResult } = require('express-validator');
 var { query } = require('express-validator/check')
 
 var Node = require('../models/node');
-var Gateway = require('../models/gateway');
 var History = require('../models/history');
-
-// TODO: make things asynchronous
 
 // GET request for a list of nodes
 exports.history_index = [
@@ -27,7 +24,7 @@ exports.history_index = [
         .isBoolean()
         .withMessage('Missing smoke indication (true/false)'),
 
-    (req, res, next) => {
+    async (req, res, next) => {
         const errors = validationResult(req);
         if (!errors.isEmpty()) {
             res.status(400).json({
@@ -67,19 +64,6 @@ exports.history_index = [
 
 ];
 
-// GET request for the history of a node by its id
-exports.history_show = (req, res, next) => {
-    History.find({ 'nodeID': req.params.id })
-        .sort([['timestamp', 'ascending']])
-        .exec(function (err, histories) {
-            if (err) {
-                return next(err);
-            }
-
-            res.status(200).json(histories);
-        })
-};
-
 // POST request for creating a new history entry
 exports.history_create = [
     body('nodeID')
@@ -98,7 +82,7 @@ exports.history_create = [
         .isFloat({min: 0})
         .withMessage('Invalid smoke reading'),
 
-    (req, res, next) => {
+    async (req, res, next) => {
         // Extract errors
         const errors = validationResult(req);
 
@@ -136,7 +120,7 @@ exports.history_destroy = [
         .isInt({ gt: 1e13 })
         .withMessage('Invalid end timestamp'),
 
-    (req, res, next) => {
+    async (req, res, next) => {
         // Extract errors
         const errors = validationResult(req);
 
@@ -180,10 +164,21 @@ exports.history_destroy = [
     }
 ]
 
+// GET request for the history of a node by its id
+exports.history_show = async (req, res, next) => {
+    History.find({ 'nodeID': req.params.id })
+        .sort([['timestamp', 'ascending']])
+        .exec(function (err, histories) {
+            if (err) {
+                return next(err);
+            }
 
+            res.status(200).json(histories);
+        })
+};
 
 // No reason to implement a PUT request
-exports.hitory_update = (req, res, next) => {
+exports.hitory_update = async (req, res, next) => {
     // Return 501 Not Implemented
     res.status(501)
 }
