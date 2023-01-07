@@ -15,7 +15,7 @@ const apiRouter = require('./routes/api');
 require('dotenv').config();
 
 // Setting up database connection
-var mongoDB = process.env.DATABASE_URL;
+var mongoDB = process.env.DATABASE_URI;
 mongoose.connect(mongoDB, {useNewUrlParser: true, useUnifiedTopology: true});
 mongoose.Promise = global.Promise;
 
@@ -25,7 +25,7 @@ db.on('error', () => console.error.bind(console, 'MongoDB connection error'));
 
 
 // Validate the JSON data
-app.use(express.json);
+app.use(express.json());
 
 
 // Set up routes
