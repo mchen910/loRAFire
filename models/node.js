@@ -11,10 +11,7 @@ const NodeSchema = new Schema({
     },
 
     online: { type: Boolean, default: true },
-
     gatewayID: { type: Types.ObjectId },
-    hSensorID: { type: Types.ObjectId },
-    sSensorID: { type: Types.ObjectId }
 },
 
     { versionKey: false }
