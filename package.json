@@ -4,7 +4,9 @@
   "main": "app.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node ./bin/www"
+    "start": "node ./bin/www",
+    "devstart": "nodemon ./bin/www",
+    "serverstart": "DEBUG=lora-fire:* npm run devstart"
   },
   "author": "Matthew Chen",
   "license": "ISC",
