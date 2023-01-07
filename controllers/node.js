@@ -5,39 +5,49 @@ var Gateway = require('../models/gateway');
 
 // GET request for a list of nodes
 exports.node_index = (req, res, next) => {
-    Node.find(function (err, nodeList) {
-        if (err) {
-            return next(err);
-        }
+    Node.find()
+        .sort([['_id', 'ascending']])
+        .exec(function (err, nodeList) {
+            if (err) {
+                return next(err);
+            }
 
-        return res.status(200).json(nodeList);
-    })
+            res.status(200).json(nodeList);
+        })
 };
 
 // GET request for a node by its id
 exports.node_show = (req, res, next) => {
-    const node = Node.findById(req.params.id);
-    const gateway = Gateway.findById(node.gatewayID);
-
-    if (!node) {
-        var err = new Error("Node not found");
-        err.status = 400;
-        return next(err);
-    }
-    if (!gateway) {
-        var err = new Error("Invalid gateway ID");
-        err.status = 400;
-        return next(err);
-    }
-
-    res.status(200).json({
-        _id: node._id,
-        online: node.online,
-        location: node.location,
-        gateway: {
-            location: gateway.location,
-            online: gateway.online
+    // Find node first
+    Node.findById(req.params.id, function (err, node) {
+        if (err) {
+            return next(err);
         }
+
+        if (node === null) {
+            var err = new Error('Node not found');
+            err.status = 404;
+            return next(err);
+        }
+
+        // Then find the gateway associated with it
+        Gateway.findById(node.gatewayID, function (err, gateway) {
+            if (err) {
+                return next(err);
+            }
+
+            // Return the node but replace the gateway ID with more information
+            res.status(200).json({
+                _id: node._id,
+                online: node.online,
+                location: node.location,
+                gateway: {
+                    _id: gateway._id,
+                    location: gateway.location,
+                    online: gateway.online
+                }
+            });
+        })
     });
 };
 
@@ -86,6 +96,8 @@ exports.node_create = [
                 if (err) {
                     return next(err);
                 }
+
+                res.status(201).json(node);
             });
         }
     }
@@ -122,6 +134,7 @@ exports.node_update = [
         const errors = validationResult(req);
 
         var node = new Node({
+            _id: req.params.id,
             location: req.body.location,
             online: req.body.online,
             gatewayID: req.body.gatewayID,
@@ -144,8 +157,7 @@ exports.node_update = [
                         return next(err);
                     }
 
-                    // redirect??
-                    res.redirect(_node.url)
+                    res.status(200).json(node);
                 }
             );
         }
@@ -154,30 +166,37 @@ exports.node_update = [
 
 // DELETE request for deleting an existing node
 exports.node_destroy = (req, res, next) => {
-    const node = Node.findById(req.params.id);
-    var gateway = Gateway.findById(node.gatewayID);
-
-    if (!node) {
-        var err = new Error("Node not found");
-        err.status = 404;
-        return next(err);
-    }
-    if (!gateway) {
-        var err = new Error("Invalid gateway ID");
-        err.status = 400;
-        return next(err);
-    }
-
-    // Delete the node from the gateway's list of nodes
-    let idx = gateway.nodes.indexOf(node);
-    gateway.nodes.splice(idx, 1);
-
-    // Finally delete the node
-    Node.findByIdAndDelete(req.params.id, function (err) {
+    Node.findById(req.params.id, function (err, node) {
         if (err) {
             return next(err);
         }
 
-        return res.status(204);
-    });
+        // Check if the node even exists in the collection
+        if (node === null) {
+            var err = new Error('Node not found');
+            err.status = 404;
+            return next(err);
+        }
+
+        Gateway.findById(node.gatewayID, function (err, gateway) {
+            if (err) {
+                return next(err);
+            }
+
+            // Delete the node from the gateway's list of nodes
+            console.log(gateway.nodes);
+            let idx = gateway.nodes.indexOf(node);
+            console.log(idx);
+            gateway.nodes.splice(idx, 1);
+
+            // Finally delete the node
+            Node.findByIdAndDelete(req.params.id, function (err) {
+                if (err) {
+                    return next(err);
+                }
+
+                return res.status(204);
+            });
+        })
+    })
 }
