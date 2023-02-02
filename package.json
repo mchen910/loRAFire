@@ -3,25 +3,21 @@
   "version": "1.0.0",
   "main": "app.js",
   "scripts": {
-    "start": "node ./bin/www",
-    "dev": "nodemon ./bin/www",
+    "start": "node index.js",
+    "dev": "nodemon index.js",
     "test-populate": "node tests/populatedb.js",
     "serverstart": "DEBUG=lora-fire:* npm run devstart"
   },
-  "author": "Matthew Chen",
+  "author": "Matthew Chen, Shine Chang",
   "license": "ISC",
   "description": "",
   "dependencies": {
-    "async": "^3.2.4",
-    "body-parser": "^1.20.1",
     "dotenv": "^16.0.3",
-    "ejs": "^3.1.8",
     "express": "^4.18.2",
     "express-validator": "^6.14.2",
-    "http-errors": "^2.0.0",
-    "jsonwebtoken": "^8.5.1",
-    "mongoose": "^6.7.3",
-    "nodemon": "^2.0.20",
-    "supertest": "^6.3.3"
+    "mongoose": "^6.7.3"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.20"
   }
 }

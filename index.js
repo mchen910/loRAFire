@@ -1,6 +1,4 @@
-#!/usr/bin/env node
-
-const app = require('../app');
+const app = require('./app');
 const http = require('http');
 
 const port = process.env.PORT;
