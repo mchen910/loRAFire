@@ -4,13 +4,12 @@ var Schema = mongoose.Schema;
 var Types = mongoose.Types;
 
 const HistorySchema = new Schema({
-    nodeID: Types.ObjectId,
+    srcID: Number,
     humidSensor: {
-        battery: Number,
+        temp: Number,
         humidity: Number,
     },
     smokeSensor: {
-        battery: Number,
         smokeLevel: Number,
     }
 },

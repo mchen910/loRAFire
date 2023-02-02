@@ -1,12 +1,24 @@
-var { body, validationResult } = require('express-validator');
-var { query } = require('express-validator/check')
+var { query, validationResult } = require('express-validator');
 
 var Node = require('../models/node');
 var History = require('../models/history');
 
-// GET request for a list of nodes
-exports.history_index = [
+// ======= INDEX ======
+// PUT <obj> => PUTs new history instance, sets last ping
+
+// GET <nodeID> <start (def=now-1week)> <end (def=now)> => Gets the history in the specified interval of the given node
+// GET <cutoff (def=now)> => gets, for each node, the most recent history prior to the cutoff time  
+
+// ===== INTERNAL ==== 
+// DELETE <cutoff> => Deletes all histories before cutoff time
+
+// GET <nodeID> <start (def=now-1week)> <end (def=now)> => Gets the history in the specified interval of the given node
+exports.get_by_node = [
     // Check query parameters for beginning and ending timestamps
+    query("node")
+        .exists()
+        .isInt()
+        .withMessage("No node ID supplied"),
     query('start')
         .optional()
         .isInt({ gt: 1e13 })
@@ -15,31 +27,18 @@ exports.history_index = [
         .optional()
         .isInt({ gt: 1e13 })
         .withMessage('Invalid end timestamp'),
-    query('humidity')
-        .exists()
-        .isBoolean()
-        .withMessage('Missing humidity indication (true/false)'),
-    query('smoke')
-        .exists()
-        .isBoolean()
-        .withMessage('Missing smoke indication (true/false)'),
-
     (req, res, next) => {
         const errors = validationResult(req);
         if (!errors.isEmpty()) {
-            res.status(400).json({
-                errors: errors.array()
-            });
+            res.status(400).json({ errors: errors.array() });
             return;
         }
-
-
-        if (req.query.start === undefined) {
+        if (req.query.start === undefined) 
             req.query.start = new Date(2001, 9, 10, 0, 0, 0, 0);
-        }
-        if (req.query.end === undefined) {
+        
+        if (req.query.end === undefined) 
             req.query.end = Date.now()
-        }
+        
 
         // Check if end date is before start date
         if (req.query.end < req.query.start) {
@@ -49,137 +48,114 @@ exports.history_index = [
         }
 
         // req.query.start/end are in milliseconds
-        let start = new Date(req.query.start).toISOString();
-        let end = new Date(req.query.end).toISOString();
+        let start = new Date(parseInt(req.query.start));
+        let end = new Date(parseInt(req.query.end));
 
-        History.find({ 'timestamp': { $gte: start, $lt: end } })
-            .exec(function (err, results) {
-                if (err) {
-                    return next(err);
-                }
-
-                res.status(200).json({ results });
-            })
+        History.find({nodeID: req.query.node, 'timestamp': { $gte: start, $lt: end } })
+            .exec( (err, results) => err? next(err) : res.status(200).json({ results }) );
     }
-
 ];
 
-// POST request for creating a new history entry
-exports.history_create = [
-    body('nodeID')
-        .isMongoId()
+// GET <cutoff (def=now)> => gets, for each node, the most recent history prior to the cutoff time  
+exports.get_all = [
+    query('cutoff')
+        .optional()
+        .isInt({ gt: 1e13 })
+        .withMessage('Invalid start timestamp'),
+    (req, res, next) => {
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            res.status(400).json({ errors: errors.array() });
+            return;
+        }
+        if (req.query.cutoff === undefined) 
+            req.query.end = Date.now()
+        
+        // req.query.start/end are in milliseconds
+        let cutoff = new Date(parseInt(req.query.start));
+
+        History.find({ 'timestamp': { $lt: cutoff } })
+            .exec( (err, results) => err? next(err) : res.status(200).json({ results }) );
+    }
+];
+
+// PUT request for creating a new history entry
+exports.put = [
+    query('node')
+        .isInt()
         .withMessage('Invalid node ID'),
-    body('humidSensor.battery')
-        .isFloat({min: 0, max: 1})
-        .withMessage('Invalid humidity sensor battery percentage'),
-    body('humidSensor.humidity')
-        .isFloat({min: 0, max: 1})
-        .withMessage('Invalid humidity percentage'),
-    body('smokeSensor.battery')
-        .isFloat({min: 0, max: 1})
-        .withMessage('Invalid smoke sensor battery percentage'),
-    body('smokeSensor.battery')
+    query('humidSensor.temp')
+        .isFloat({min: -30, max: 80})
+        .withMessage('Invalid temperature'),
+    query('humidSensor.humidity')
+        .isFloat({min: 0, max: 100})
+        .withMessage('Invalid humidity'),
+    query('smokeSensor.smokeLevel')
         .isFloat({min: 0})
         .withMessage('Invalid smoke reading'),
 
     (req, res, next) => {
-        // Extract errors
+        console.log("History PUT req, query: ", req.query);
         const errors = validationResult(req);
-
-        var history = new History({
-            nodeID: req.params.nodeID,
-            humidSensor: req.params.humidSensor,
-            smokeSensor: req.params.smokeSensor
-        });
-
         if (!errors.isEmpty()) {
-            res.status(422).json({
-                errors: errors.array()
-            });
+            res.status(422).json({ errors: errors.array() });
             return;
-
-        } else {
-            history.save(function (err) {
+        }
+        // Set last ping
+        Node.findByIdAndUpdate(
+            req.query.node,
+            {lastPing: time},
+            {},
+            (err, res) => {
                 if (err) {
+                    console.error("cannot find node to update last ping");
                     return next(err);
                 }
-            })
-        }
-    }
-]
-
-// DELETE request for deleting an existing history entry
-exports.history_destroy = [
-    // Check query params
-    query('start')
-        .optional()
-        .isInt({ gt: 1e13 })
-        .withMessage('Invalid start timestamp'),
-    query('end')
-        .optional()
-        .isInt({ gt: 1e13 })
-        .withMessage('Invalid end timestamp'),
-
-    (req, res, next) => {
-        // Extract errors
-        const errors = validationResult(req);
-
-        if (!errors.isEmpty()) {
-            res.status(422).json({
-                errors: errors.array()
-            });
-            return;
-
-        } else {
-            const node = Node.findById(req.params.id);
-            if (!node) {
-                var err = new Error('Node not found');
-                err.status = 400;
+            }
+        )
+        // PUT history
+        var history = new History({
+            nodeID: req.query.node,
+            humidSensor: req.query.humidSensor,
+            smokeSensor: req.query.smokeSensor
+        });
+        history.save(err => {
+            if (err) 
                 return next(err);
-            }
-
-            // Check for valid timestamps
-            if (start === undefined || end === undefined) {
-                History.deleteMany({nodeID: req.params.id})
-                res.status(200);
-                return;
-
-            } else {
-                if (start > end) {
-                    var err = new Error('Invalid timestammps');
-                    err.status = 400;
-                    return next(err);
-                }
-
-                History.deleteMany({"timestamp": {$gte: start, $lt: end}}, function (err) {
-                    if (err) {
-                        return next(err);
-                    }
-
-                    res.status(204);
-                });
-
-            }
-        }
+        });
     }
 ]
-
 // GET request for the history of a node by its id
 exports.history_show = (req, res, next) => {
-    History.find({ 'nodeID': req.params.id })
+    console.log("History GET id: ", req.query.id);
+    History.find({ 'nodeID': req.query.id })
         .sort([['timestamp', 'ascending']])
-        .exec(function (err, histories) {
-            if (err) {
+        .exec((err, histories) => {
+            if (err) 
                 return next(err);
-            }
-
             res.status(200).json(histories);
         })
 };
 
-// No reason to implement a PUT request
-exports.history_update = (req, res, next) => {
-    // Return 501 Not Implemented
-    res.status(501)
-}
 
+// ==INTERNAL== DELETE request for deleting an existing history entry
+exports.delete = [
+   query('cutoff')
+        .exists()
+        .isInt({ gt: 1e13 })
+        .withMessage('Invalid cutoff timestamp'),
+    (req, res, next) => {
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            res.status(422).json({ errors: errors.array() });
+            return;
+        }
+        let cutoff = new Date(parseInt(req.query.start));
+        
+        History.deleteMany({"timestamp": {$lt: cutoff}}, function (err) {
+            if (err) 
+                return next(err);
+            res.status(204);
+        });
+    }
+];

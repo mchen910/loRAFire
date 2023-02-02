@@ -30,7 +30,7 @@ app.use(express.json());
 
 // Set up routes
 app.use('/', indexRouter);
-app.use('/api/v1', apiRouter);
+app.use('/api/', apiRouter);
 
 
 
