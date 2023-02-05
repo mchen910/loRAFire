@@ -1,20 +1,19 @@
 const { query, validationResult } = require('express-validator');
 
 const Node = require('../models/node');
-const Gateway = require('../models/gateway');
 
-// ========= INDEX ========= 
-// PUT => Make new node 
-// DELETE <id> => Delete node with <id> 
+// ========= Routes ========= 
+// PUT <id> <latitude> <longitude>: Spawns new node document
+// DELETE <id>: Delete node with id=<id> 
 
-// GET => Get all nodes 
-// GET <id> => Get node with <id>
+// GET: Returns all nodes 
+// GET <id>: Returns node with id=<id>
 
-// ======== Internal ===== 
-// POST <id> <obj> => Updates node  with <id> according to the object 
+// ======== Private Functions ======= 
+// update (id, lastPing, adj): updates document of node <id>
 
 
-// PUT request for creating a new node entry
+// PUT <id> <latitude> <longitude>: Spawns new node document
 exports.put = [
     query('id')
         .exists()
@@ -48,7 +47,7 @@ exports.put = [
 ];
 
 
-// DELETE request for deleting an existing node
+// DELETE <id>: Delete node with id=<id> 
 exports.delete = [
     query("id")
         .exists()
@@ -63,14 +62,14 @@ exports.delete = [
 ];
 
 
-// GET request for a list of nodes
+// GET: Returns all nodes 
 exports.get_all = (req, res, next) => {
     Node.find()
         .sort([['_id', 'ascending']])
         .exec((err, nodeList) => err ? next(err) : res.status(200).json(nodeList));
 };
 
-// GET request for a node by its id
+// GET <id>: Returns node with id=<id>
 exports.get = (req, res, next) => {
     Node.findById(req.params.id, function (err, node) {
         if (err) 
@@ -90,7 +89,7 @@ exports.get = (req, res, next) => {
     });
 };
 
-// ##INTERNAL## Request to update node.
+// update (id, lastPing, adj): updates document of node <id>
 exports.update = (id, lastPing, adj) => { 
     console.log("Node update request");
     const node = new Node({

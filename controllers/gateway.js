@@ -3,15 +3,18 @@ var { body, query, validationResult } = require('express-validator');
 var Node = require('../models/node');
 var Gateway = require('../models/gateway');
 
-/* ========= INDEX ========= */
-// PUT => Make new gateway
-// DELETE <id> => Delete gateway with <id> 
-// POST <id> <(opt) lastPing> <(opt) adj> => Updates gateway with <id> with the optional params
+/* ========= Routes ========= */
+// PUT <id> <latitude> <longitude>: Spawns new gateway document
+// DELETE <id>: Delete gateway with id=<id> 
 
-// GET => Get all gateways
-// GET <id> => Get gateway with <id>
+// GET: Returns all gateways
+// GET <id>: Returns gateway with id=<id>
 
-// PUT request for creating a new node entry
+/* ======= Private Functions ======= */
+// update (id, lastPing, adj): updates document of gateway <id>
+
+
+// PUT <id> <latitude> <longitude>: Spawns new gateway document
 exports.put = [
     query('id')
         .exists()
@@ -44,7 +47,7 @@ exports.put = [
     }
 ];
 
-// DELETE request for deleting an existing node
+// DELETE <id>: Delete gateway with id=<id> 
 exports.delete = [
     query("id")
         .exists()
@@ -58,7 +61,34 @@ exports.delete = [
     }
 ];
 
-// ##INTERNAL## Request for updating a gateway 
+// GET: Returns all gateways
+exports.get_all = (req, res, next) => {
+    Gateway.find(function (err, gatewayList) {
+        if (err) 
+            return next(err);
+        res.status(200).json(gatewayList);
+    })
+};
+
+// GET <id>: Returns gateway with id=<id>
+exports.get = (req, res, next) => {
+    const gateway = Gateway.findById(req.params.id);
+
+    if (gateway === undefined) {
+        var err = new Error(`None such gateway '${req.params.id}'`);
+        err.status = 400;
+        return next(err);
+    }
+
+    res.status(200).json({
+        _id: gateway._id,
+        location: gateway.location,
+        lastPing: gateway.lastPing,
+        nodes:  gateway.nodes
+    });
+};
+
+// update (id, lastPing, adj): updates document of gateway <id>
 exports.update = (id, lastPing, adj) => {
     console.log("Gateway update req");
     const gateway = new Gateway({
@@ -76,30 +106,3 @@ exports.update = (id, lastPing, adj) => {
     );
 }
 
-
-// GET => Get all gateways
-exports.get_all = (req, res, next) => {
-    Gateway.find(function (err, gatewayList) {
-        if (err) 
-            return next(err);
-        res.status(200).json(gatewayList);
-    })
-};
-
-// GET <id> => Get gateway with <id>
-exports.get = (req, res, next) => {
-    const gateway = Gateway.findById(req.params.id);
-
-    if (gateway === undefined) {
-        var err = new Error(`None such gateway '${req.params.id}'`);
-        err.status = 400;
-        return next(err);
-    }
-
-    res.status(200).json({
-        _id: gateway._id,
-        location: gateway.location,
-        lastPing: gateway.lastPing,
-        nodes:  gateway.nodes
-    });
-};

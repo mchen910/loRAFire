@@ -3,17 +3,16 @@ var { param, query, validationResult } = require('express-validator');
 var Node = require('../models/node');
 var History = require('../models/history');
 
-// ======= INDEX ======
-// GET <nodeID> <start (def=now-1week)> <end (def=now)> => Gets the history in the specified interval of the given node
-// GET <cutoff (def=now)> => Gets, for each node, the most recent history prior to the cutoff time  
+// ======= Routes ======
+// GET <nodeID> <start (def=now-1week)> <end (def=now)>: Gets the histories in the specified interval of the given node
+// GET <cutoff (def=now)>: Gets, for each node, the most recent history prior to the cutoff time. Returns object where obj[id] = history 
 
-// ===== INTERNAL ==== 
-// DELETE <cutoff> => Deletes all histories before cutoff time
-// PUT <obj> => PUTs new history instance, sets last ping
+// ===== Private Functions ===== 
+// delete (cutoff): Deletes all histories before cutoff time
+// put (id, time, temp, humidity): PUTs new history instance, sets last ping of node
 
 
-
-// GET <nodeID> <start (def=now-1week)> <end (def=now)> => Gets the history in the specified interval of the given node
+// GET <nodeID> <start (def=now-1week)> <end (def=now)>: Gets the histories in the specified interval of the given node
 exports.get_by_node = [
     // Check query parameters for beginning and ending timestamps
     param("id")
@@ -57,7 +56,7 @@ exports.get_by_node = [
     }
 ];
 
-// GET <cutoff (def=now)> => gets, for each node, the most recent history prior to the cutoff time  
+// GET <cutoff (def=now)>: Gets, for each node, the most recent history prior to the cutoff time. Returns object where obj[id] = history 
 exports.get_all = [
     query('cutoff')
         .optional()
@@ -90,7 +89,9 @@ exports.get_all = [
 ];
 
 
-// ##INTERNAL## Request for deleting histories before a cutoff
+// ======= Private Functions ===== 
+
+// delete (cutoff): Deletes all histories before cutoff time
 exports.delete = cutoff => {
     let millis = new Date(parseInt(cutoff));
     
@@ -99,7 +100,7 @@ exports.delete = cutoff => {
     });
 }
 
-// ##INTERNAL## Request for putting a history entry
+// put (id, time, temp, humidity): PUTs new history instance, sets last ping of node
 exports.put = (id, time, temp, humidity) => {
     console.log("History PUT");
     if (!id) {
@@ -129,4 +130,3 @@ exports.put = (id, time, temp, humidity) => {
             return next(err);
     });
 }
-

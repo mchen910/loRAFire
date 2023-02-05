@@ -4,7 +4,13 @@ const nodeController = require('../controllers/node');
 const gatewayController = require('../controllers/gateway');
 const historyController = require('../controllers/history');
 
-// Handle a data packet post FMT: ?str=[node]:[temp]:[humidity]
+// ======= Routes ======
+// POST <str>: Handles data packet post from gateways. query format: "?str=[node]:[temp]:[humidity]"
+// POST <str>: Handles a node adjacency packet post. query format: "?str=[node]:[adj]..."
+// POST <str>: Handles a gateway adjacency packet post. query format: "?str=[gateway]:[adj]..."
+
+
+// POST <str>: Handles data packet post from gateways. query format: "?str=[node]:[temp]:[humidity]"
 exports.data_post = [
     query("str")
         .exists()
@@ -26,8 +32,9 @@ exports.data_post = [
         
         return res.status(204);
     }
-]
-// Handles a node adjacency packet post
+];
+
+// POST <str>: Handles a node adjacency packet post. query format: "?str=[node]:[adj]..."
 exports.node_adjacency_post = [
     query("str")
         .exists()
@@ -49,7 +56,7 @@ exports.node_adjacency_post = [
     }
 ];
 
-// Handles a gateway adjacency packet post
+// POST <str>: Handles a gateway adjacency packet post. query format: "?str=[gateway]:[adj]..."
 exports.gateway_adjacency_post = [
     query("str")
         .exists()
