@@ -10,7 +10,7 @@ var History = require('../models/history');
 
 var mongoose = require('mongoose');
 
-require('dotenv').config();
+require('dotenv').config({ path: "./config.env" });
 var mongoDB = process.env.DATABASE_URI;
 
 // Connect to the database

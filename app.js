@@ -2,7 +2,7 @@ var createError = require('http-errors');
 var express = require('express');
 var mongoose = require('mongoose');
 var bodyParser = require('body-parser');
-
+var sirv = require('sirv');
 var app = express();
 
 const indexRouter = require('./routes/index');
@@ -12,7 +12,7 @@ const apiRouter = require('./routes/api');
 // app.use(express.static("public"));
 // app.use(bodyParser.urlencoded({extended: true}));
 
-require('dotenv').config();
+require('dotenv').config({ path: "./config.env"});
 
 // Setting up database connection
 var mongoDB = process.env.DATABASE_URI;
