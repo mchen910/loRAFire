@@ -58,44 +58,23 @@ exports.delete = [
     }
 ];
 
-// POST request for updating a node
-exports.post = [
-    query("id")
-        .exists()
-        .isInt()
-        .withMessage("Invalid ID"),
-    query("lastPing")
-        .optional()
-        .isInt()
-        .withMessage("Invalid lastPing timestamp"),
-    query('adj.*')
-        .optional()
-        .isInt()
-        .withMessage('Invalid Adjacent ID'),
-    (req, res, next) => {
-        console.log("Gateway POST req, query: ", req.query);
-
-        const errors = validationResult(req);
-        if (!errors.isEmpty())
-            return res.status(422)
-                .json({ errors: errors.array() });
-        
-        const gateway = new Gateway({
-            lastPing: req.query.lastPing ? new Date(parseInt(req.query.lastPing)) : undefined,
-            adjacencies:  req.query.adj,
-        });
-        Gateway.findByIdAndUpdate(
-            req.query.id,
-            gateway,
-            {new: true},
-            (err, _gateway) => {
-                if (err) 
-                    return next(err);
-                return res.status(200).json(_gateway);
-            }
-        );
-    }
-];
+// ##INTERNAL## Request for updating a gateway 
+exports.update = (id, lastPing, adj) => {
+    console.log("Gateway update req");
+    const gateway = new Gateway({
+        lastPing: lastPing ? new Date(parseInt(lastPing)) : undefined,
+        adjacencies:  adj,
+    });
+    Gateway.findByIdAndUpdate(
+        id,
+        gateway,
+        {new: true},
+        err  => {
+            if (err) 
+                console.log("Err on Gateway update: ", err);
+        }
+    );
+}
 
 
 // GET => Get all gateways

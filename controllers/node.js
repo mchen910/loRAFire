@@ -5,11 +5,13 @@ const Gateway = require('../models/gateway');
 
 // ========= INDEX ========= 
 // PUT => Make new node 
-// POST <id> <obj> => Updates node  with <id> according to the object 
 // DELETE <id> => Delete node with <id> 
 
 // GET => Get all nodes 
 // GET <id> => Get node with <id>
+
+// ======== Internal ===== 
+// POST <id> <obj> => Updates node  with <id> according to the object 
 
 
 // PUT request for creating a new node entry
@@ -45,46 +47,8 @@ exports.put = [
     }
 ];
 
-// POST request for updating a node
-exports.post = [
-    query("id")
-        .exists()
-        .isInt()
-        .withMessage("Invalid ID"),
-    query("lastPing")
-        .optional()
-        .isInt()
-        .withMessage("Invalid lastPing timestamp"),
-    query('adj.*')
-        .optional()
-        .isInt()
-        .withMessage('Invalid Adjacent ID'),
-    (req, res, next) => {
-        console.log("Node POST req, query: ", req.query);
 
-        const errors = validationResult(req);
-        if (!errors.isEmpty())
-            return res.status(422)
-                .json({ errors: errors.array() });
-        
-        const node = new Node({
-            lastPing: req.query.lastPing ? new Date(parseInt(req.query.lastPing)) : undefined,
-            adjacencies:  req.query.adj,
-        });
-        Node.findByIdAndUpdate(
-            req.query.id,
-            node,
-            {new: true},
-            (err, _node) => {
-                if (err) 
-                    return next(err);
-                return res.status(200).json(_node);
-            }
-        );
-    }
-]
-
-// DuELETE request for deleting an existing node
+// DELETE request for deleting an existing node
 exports.delete = [
     query("id")
         .exists()
@@ -125,3 +89,22 @@ exports.get = (req, res, next) => {
         });
     });
 };
+
+// ##INTERNAL## Request to update node.
+exports.update = (id, lastPing, adj) => { 
+    console.log("Node update request");
+    const node = new Node({
+        lastPing: lastPing ? new Date(lastPing) : undefined,
+        adjacencies: adj,
+    });
+    Node.findByIdAndUpdate(
+        id,
+        node,
+        {new: true},
+        err => {
+            if (err)
+                console.log("Error on node update: ", err); 
+        }
+    );
+};
+

@@ -5,13 +5,9 @@ var Types = mongoose.Types;
 
 const HistorySchema = new Schema({
     srcID: Number,
-    humidSensor: {
-        temp: Number,
-        humidity: Number,
-    },
-    smokeSensor: {
-        smokeLevel: Number,
-    }
+    temp: Number,
+    humidity: Number,
+    smokeLevel: Number,
 },
     {
         timestamps: true,

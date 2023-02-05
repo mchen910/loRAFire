@@ -1,22 +1,72 @@
-var { body, validationResult } = require('express-validator');
+var { query, validationResult } = require('express-validator');
 
-var Node = require('../models/node');
-var Gateway = require('../models/gateway');
+const nodeController = require('../controllers/node');
+const gatewayController = require('../controllers/gateway');
+const historyController = require('../controllers/history');
 
-// Handle a data packet post
-exports.data_post = (req, res, next) => {
-    // Create & set history
-    // Update last ping time
-};
+// Handle a data packet post FMT: ?str=[node]:[temp]:[humidity]
+exports.data_post = [
+    query("str")
+        .exists()
+        .isString(),
+    (req, res, next) => {
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            res.status(400).json({ errors: errors.array() });
+            return;
+        }
 
+        let args = req.query.str.split(":");
+        const id = parseInt(args[0]);
+        const temp = parseInt(args[1]);
+        const humidity = parseInt(args[2]);
+
+        // Create & set history
+        historyController.put(id, Date.now(), temp, humidity);
+        
+        return res.status(204);
+    }
+]
 // Handles a node adjacency packet post
-exports.node_adjacency_post = (req, res, next) => {
-    // Set adjacency list of node
-    // Set last ping time
-};
+exports.node_adjacency_post = [
+    query("str")
+        .exists()
+        .isString(),
+    (req, res, next) => {
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            res.status(400).json({ errors: errors.array() });
+            return;
+        }
+
+        let args = req.query.str.split(":");
+        const id = args[0];
+        
+        // Set adjacency list of node
+        nodeController.update(id, Date.now(), args.slice(1));
+
+        return res.status(204);
+    }
+];
 
 // Handles a gateway adjacency packet post
-exports.gateway_adjacency_post = (req, res, next) => {
-    // Set adjacency list of node
-    // Set last ping time
-};
+exports.gateway_adjacency_post = [
+    query("str")
+        .exists()
+        .isString(),
+    (req, res, next) => {
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            res.status(400).json({ errors: errors.array() });
+            return;
+        }
+
+        let args = req.query.str.split(":");
+        const id = args[0];
+        
+        // Set adjacency list of node
+        gatewayController.update(id, Date.now(), args.slice(1));
+
+        return res.status(204);
+    }
+];

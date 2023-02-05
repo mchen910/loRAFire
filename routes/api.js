@@ -14,11 +14,9 @@ router.post("/node-adjacency", netController.node_adjacency_post);
 router.post("/gateway-adjacency", netController.gateway_adjacency_post);
 
 router.put("/node", nodeController.put);
-router.post("/node", nodeController.post);
 router.delete("/node", nodeController.delete);
 
 router.put("/gateway", gatewayController.put);
-router.post("/gateway", gatewayController.post);
 router.delete("/gateway", gatewayController.delete);
 
 /* ================ Client Routes ================== */
