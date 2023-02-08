@@ -1,217 +1,108 @@
-var { body, validationResult } = require('express-validator');
+var { body, query, validationResult } = require('express-validator');
 
 var Node = require('../models/node');
 var Gateway = require('../models/gateway');
 
+/* ========= Routes ========= */
+// PUT <id> <latitude> <longitude>: Spawns new gateway document
+// DELETE <id>: Delete gateway with id=<id> 
 
-// GET request for a list of gateways
-exports.gateway_index = (req, res, next) => {
+// GET: Returns all gateways
+// GET <id>: Returns gateway with id=<id>
+
+/* ======= Private Functions ======= */
+// update (id, lastPing, adj): updates document of gateway <id>
+
+
+// PUT <id> <latitude> <longitude>: Spawns new gateway document
+exports.put = [
+    query('id')
+        .exists()
+        .isInt()
+        .withMessage('Invalid ID'),
+    query('latitude')
+        .exists()
+        .isFloat({ min: -180.0, max: 180.0 })
+        .withMessage('Invalid latitude'),
+    query('longitude')
+        .exists()
+        .isFloat({ min: -180.0, max: 180.0 })
+        .withMessage('Invalid longitude'),
+    (req, res, next) => {
+        console.log("Gateway PUT req, query: ", req.query);
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) 
+            return res.status(422).json({
+                errors: errors.array()
+            });
+
+        const gateway = new Gateway({
+            _id: req.query.id,
+            location: {
+                latitude: req.query.latitude,
+                longitude: req.query.longitude
+            },
+        });
+        gateway.save( e => e ? next(e) : res.status(201).json(gateway) );
+    }
+];
+
+// DELETE <id>: Delete gateway with id=<id> 
+exports.delete = [
+    query("id")
+        .exists()
+        .isInt()
+        .withMessage("Invalid node ID"),
+    (req, res, next) => { 
+        console.log("Node DELETE: id: ", req.query.id);
+        Gateway.findByIdAndDelete(req.query.id, e => {
+            e ? next(e) : res.status(204)
+        })
+    }
+];
+
+// GET: Returns all gateways
+exports.get_all = (req, res, next) => {
     Gateway.find(function (err, gatewayList) {
-        if (err) {
-            next(err);
-            return;
-        }
-
+        if (err) 
+            return next(err);
         res.status(200).json(gatewayList);
     })
 };
 
-// GET request for a gateway by its id
-exports.gateway_show = (req, res, next) => {
+// GET <id>: Returns gateway with id=<id>
+exports.get = (req, res, next) => {
     const gateway = Gateway.findById(req.params.id);
 
-    if (!gateway) {
-        var err = new Error("Invalid gateway ID");
+    if (gateway === undefined) {
+        var err = new Error(`None such gateway '${req.params.id}'`);
         err.status = 400;
         return next(err);
     }
-
-    // Valid gateway, get all the connecting nodes
-    var nodes = {};
-    gateway.nodes.forEach(element => {
-        Node.findById(element, function(err) {
-            if (err) {
-                return next(err);
-            }
-
-            var node = {
-                online: node.online,
-                location: node.location,
-                hSensorID: node.hSensorID,
-                sSensorID: node.sSensorID
-            };
-
-            nodes[element] = node;
-        })
-    });
 
     res.status(200).json({
         _id: gateway._id,
         location: gateway.location,
-        online: gateway.online,
-        nodes: nodes
+        lastPing: gateway.lastPing,
+        nodes:  gateway.nodes
     });
 };
 
-// POST request for creating a new gateway entry
-exports.gateway_create = [
-    body('location.latitude')
-        .isFloat({ min: -180.0, max: 180.0 })
-        .withMessage('Invalid latitude'),
-    body('location.longitude')
-        .isFloat({ min: -180.0, max: 180.0 })
-        .withMessage('Invalid longitude'),
-    body('online')
-        .isBoolean()
-        .withMessage('Not a boolean value'),
-    body('nodes')
-        .isArray()
-        .withMessage('Invalid array of node IDs'),
-    body('nodes.*')
-        .exists()
-        .isMongoId()
-        .withMessage('Invalid node ID'),
-
-    (req, res, next) => {
-        const errors = validationResult(req);
-
-        if (!errors.isEmpty()) {
-            res.status(422).json({
-                errors: errors.array()
-            })
-            return;
-
-        } else {
-            // Check if the node IDs exist
-            req.body.nodes.forEach(nodeID => {
-                Node.findById(nodeID, function(err) {
-                    if (err) {
-                        var e = new Error('Invalid node ID');
-                        e.status = 422;
-                        next(e);
-                        return;
-                    }
-                })
-            });
-
-            // Create the gateway
-            var gateway = new Gateway({
-                location: req.body.location,
-                online: req.body.online,
-                nodes: req.body.nodes
-            });
-
-            gateway.save(function (err) {
-                if (err) {
-                    next(err);
-                    return;
-                }
-            })
-        }
-    }
-]
-
-// DELETE request for deleting an existing gateway
-exports.gateway_destroy = (req, res, next) => {
-    // When a gateway is deleted, the node must either route its data through 
-    // another gateway or go offline for the time being. It's up to the user to 
-    // update the gateway that the node should connect to.
-    const gateway = Gateway.findById(req.params.id);
-
-    if (!gateway) {
-        var err = new Error("Invalid gateway ID");
-        err.status = 400;
-        return next(err);
-    }
-
-    // Get nodes that used to connect and update
-    let nodes = gateway.nodes;
-    nodes.forEach(nodeID => {
-        Node.findByIdAndUpdate(
-            nodeID, 
-            { 
-                online: false,
-                gateway: undefined 
-            }, // change online status and gateway
-
-            function (err, _node) {
-                if (err) {
-                    return next(err);
-                }
-            }
-        )
+// update (id, lastPing, adj): updates document of gateway <id>
+exports.update = (id, lastPing, adj) => {
+    console.log("Gateway update req");
+    const gateway = new Gateway({
+        lastPing: lastPing ? new Date(parseInt(lastPing)) : undefined,
+        adjacencies:  adj,
     });
-    
-    // Finally delete the gateway
-    Gateway.findByIdAndRemove(req.params.id, function(err) {
-        if (err) {
-            return next(err);
+    Gateway.findByIdAndUpdate(
+        id,
+        gateway,
+        {new: true},
+        err  => {
+            if (err) 
+                console.log("Err on Gateway update: ", err);
         }
-
-        return res.status(204);
-    })
+    );
 }
 
-// UPDATE request for updating a gateway
-exports.gateway_update = [
-    body('location.latitude')
-        .exists()
-        .isFloat({ min: -180.0, max: 180.0 })
-        .withMessage('Invalid latitude'),
-    body('location.longitude')
-        .exists()
-        .isFloat({ min: -180.0, max: 180.0 })
-        .withMessage('Invalid longitude'),
-    body('online')
-        .exists()
-        .isBoolean()
-        .withMessage('Not a boolean value'),
-    body('nodes')
-        .isArray()
-        .withMessage('Invalid array of node IDs'),
-    body('nodes.*')
-        .exists()
-        .isMongoId()
-        .withMessage('Invalid node ID'),
-    
-    (req, res, next) => {
-        const errors = validationResult(req);
-
-        var gateway = new Gateway({
-            location: req.body.location,
-            online: req.body.online,
-            nodes: req.body.nodes
-        });
-
-        if (!errors.isEmpty()) {
-            return res.status(422).json({
-                errors: errors.array()
-            });
-        
-        } else {
-            // If the gateway is offline, there should be no nodes connected
-            if (gateway.nodes.length != 0) {
-                var err = new Error("Gateway offline, but nodes are still connected");
-                err.status = 422;
-                return next(err);
-            }
-
-            Gateway.findByIdAndUpdate(
-                req.params.id,
-                gateway,
-                {},
-                function (err, _gateway) {
-                    if (err) {
-                        return next(err);
-                    }
-
-                    // redirect??
-                    res.redirect(_gateway.url);
-                }
-            );
-        }
-    }
-]
-
-
-// TODO: add a patch route?
