@@ -1,12 +1,11 @@
 {
-  "name": "lora-fire",
+  "name": "LoRaBase",
   "version": "1.0.0",
   "main": "app.js",
   "scripts": {
     "start": "node index.js",
     "dev": "nodemon index.js",
-    "test-populate": "node tests/populatedb.js",
-    "serverstart": "DEBUG=lora-fire:* npm run devstart"
+    "test-populate": "node tests/populatedb.js"
   },
   "author": "Matthew Chen, Shine Chang",
   "license": "ISC",

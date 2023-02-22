@@ -1,28 +1,26 @@
 // File used for testing, will populate the database with fake data
 
 // Get arguments passed on command line
-var userArgs = process.argv.slice(2);
+const userArgs = process.argv.slice(2);
 
-var async = require('async');
-var Node = require('../models/node');
-var Gateway = require('../models/gateway');
-var History = require('../models/history');
+const async = require('async');
+const Node = require('../models/node');
 
-var mongoose = require('mongoose');
+let mongoose = require('mongoose');
 
 require('dotenv').config();
-var mongoDB = process.env.DATABASE_URI;
+let mongoDB = process.env.DATABASE_URI;
 
 // Connect to the database
 mongoose.connect(mongoDB, { useNewUrlParser: true, useUnifiedTopology: true });
 mongoose.Promise = global.Promise;
 
-var db = mongoose.connection;
+let db = mongoose.connection;
 db.on('error', console.error.bind(console, 'MongoDB connection error:'));
 
 
-var nodes = [];
-var gateways = [];
+let nodes = [];
+let gateways = [];
 
 
 function nodeCreate(lat, lon, lastPing, cb) {
@@ -36,7 +34,7 @@ function nodeCreate(lat, lon, lastPing, cb) {
     };
 
     var node = new Node(nodeDetail);
-    node.save(function (err) {
+    node.save(err => {
         if (err) {
             cb(err, null)
             return
@@ -55,13 +53,14 @@ function gatewayCreate(lat, lon, lastPing, cb) {
             latitude: lat,
             longitude: lon
         },
-        lastPing: lastPing
+        lastPing: lastPing,
+        gateway: true,
     };
 
     console.log(gatewayDetail);
-    var gateway = new Gateway(gatewayDetail);
+    var gateway = new Node(gatewayDetail);
 
-    gateway.save(function (err) {
+    gateway.save(err => {
         if (err) {
             cb(err, null);
             return;
@@ -71,7 +70,6 @@ function gatewayCreate(lat, lon, lastPing, cb) {
         gateways.push(gateway);
         cb(null, gateway);
     })
-
 }
 
 function createGateways(cb) {

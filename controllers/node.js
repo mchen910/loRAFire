@@ -6,11 +6,13 @@ const Node = require('../models/node');
 // PUT <id> <latitude> <longitude>: Spawns new node document
 // DELETE <id>: Delete node with id=<id> 
 
-// GET: Returns all nodes 
+// GET (nodes): Returns all nodes 
+// GET (gateway): Returns all gateway 
 // GET <id>: Returns node with id=<id>
 
+
 // ======== Private Functions ======= 
-// update (id, lastPing, adj): updates document of node <id>
+// update (id, lastPacketID, lastPing, adj): updates document of node <id>
 
 
 // PUT <id> <latitude> <longitude>: Spawns new node document
@@ -34,15 +36,34 @@ exports.put = [
             return res.status(422).json({
                 errors: errors.array()
             });
-
-        const node = new Node({
-            _id: req.query.id,
-            location: {
-                latitude: req.query.latitude,
-                longitude: req.query.longitude
-            },
+        Node.findById(req.query.id, (err, node) => {
+            if (node == null) {
+                const node = new Node({
+                    _id: req.query.id,
+                    location: {
+                        latitude: req.query.latitude,
+                        lonjgitude: req.query.longitude
+                    },
+                    lastPacketID: 0,
+                    lastPing: Date.now()
+                });
+                if (req.query.gateway) {
+                    node.gateway = true;
+                }
+                node.save( err => err ? next(err) : res.status(201).json(node) );
+            } else {
+                console.log("hi");
+                Node.replaceOne({_id: req.query.id}, {
+                    _id: req.query.id,
+                    location: {
+                        latitude: req.query.latitude,
+                        lonjgitude: req.query.longitude
+                    },
+                    lastPacketID: 0,
+                    lastPing: Date.now()
+                }, () => res.status(201).json("ACK"));
+            }
         });
-        node.save( err => err ? next(err) : res.status(201).json(node) );
     }
 ];
 
@@ -63,11 +84,19 @@ exports.delete = [
 
 
 // GET: Returns all nodes 
-exports.get_all = (req, res, next) => {
-    Node.find()
+exports.get_nodes = (req, res, next) => {
+    Node.find({gateway: false})
         .sort([['_id', 'ascending']])
         .exec((err, nodeList) => err ? next(err) : res.status(200).json(nodeList));
 };
+
+// GET: Returns all gateways 
+exports.get_gateways = (req, res, next) => {
+    Node.find({gateway: true})
+        .sort([['_id', 'ascending']])
+        .exec((err, nodeList) => err ? next(err) : res.status(200).json(nodeList));
+};
+
 
 // GET <id>: Returns node with id=<id>
 exports.get = (req, res, next) => {
@@ -89,10 +118,11 @@ exports.get = (req, res, next) => {
     });
 };
 
-// update (id, lastPing, adj): updates document of node <id>
-exports.update = (id, lastPing, adj) => { 
+// update (id, lastPacketID, lastPing, adj): updates document of node <id>
+exports.update = (id, lastPacketID, lastPing, adj) => { 
     console.log("Node update request");
     const node = new Node({
+        lastPacketID: lastPacketID,
         lastPing: lastPing ? new Date(lastPing) : undefined,
         adjacencies: adj,
     });
