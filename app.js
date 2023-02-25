@@ -20,6 +20,12 @@ db.on('connection', () => console.log("Successfully connected"));
 db.on('error', () => console.error.bind(console, 'MongoDB connection error'));
 
 
+// Allow fetching from '/pub'
+app.use(express.static("pub"));
+
+// Set render engine to EJS
+app.set("view engine", "ejs");
+
 // Validate the JSON data
 app.use(express.json());
 
