@@ -5,12 +5,14 @@
   "scripts": {
     "start": "node index.js",
     "dev": "nodemon index.js",
-    "test-populate": "node tests/populatedb.js"
+    "test-populate": "node tests/populatedb.js",
+    "test-gen": "node tests/gendb.js"
   },
   "author": "Matthew Chen, Shine Chang",
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "async": "^3.2.4",
     "dotenv": "^16.0.3",
     "express": "^4.18.2",
     "express-validator": "^6.14.2",

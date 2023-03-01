@@ -30,8 +30,8 @@ exports.packet_handler = [
         const buf = Buffer.from(req.body, "base64");
         const header = intFromBytes(buf, 0, 1);
         const srcID = intFromBytes(buf, 1, 2);
-        const packetID = intFromBytes(buf, 3, 2);
-        const hdr_len = 5;
+        const packetID = intFromBytes(buf, 5, 2);
+        const hdr_len = 7;
         
         console.log("RECV msg. header: %d, srcID: %d, packetID: %d", header, srcID, packetID);
     
