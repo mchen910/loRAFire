@@ -1,3 +1,25 @@
+/*
+    Generates sample data on mongoDB connection.
+    Note: ## This code replaces the "test" database  ##
+    
+    The code generates the network within a "circle".
+    Gateway locations are generated to be near the perimeter of the "circle".
+    Node locations are generated randomly within the "circle".
+    History data is generated randomly. 
+    History time is generated in steps, ending at the current time. i.e. [1:30, 2:00, 2:30...];
+    - Some variance is applied to each step, i.e, (TIME_STEP - TIME_STEP_VAR) < step < (TIME_STEP + TIME_STEP_VAR).
+
+    Below specifies the meanings of the configurations (constants):
+    - RANGE => radius of circle, in degrees
+    - CNTR => center of the circle, in degrees
+    - GATEWAYS => number of gateways
+    - NODES => number of nodes
+    - HISTORIES => Number of history entries per node.
+    - TIME_STEP => Minutes per step in history entry.
+    - TIME_STEP_VAR => The variance of each step, in minutes.
+*/
+
+
 const async = require('async');
 const Node = require('../models/node');
 const History = require('../models/History');
@@ -19,10 +41,11 @@ db.on('error', console.error.bind(console, 'MongoDB connection error:'));
 
 const RANGE = 0.3; // In degrees (~ 69 miles)
 const CNTR = [37.512, -121.882]; // MISSION PEAK @ CALIFORNIA
-//const CNTR = [0, 0];
 const GATEWAYS = 6;
 const NODES = 20;
 const HISTORIES = 3;
+const TIME_STEP = 30;
+const TIME_STEP_VAR = 10
 
 const gatewayIDs = [];
 const nodeIDs = [];
@@ -102,7 +125,7 @@ const genHistory = () => {
 	for (let i=0; i<NODES; i++) {
 		let t = Date.now();
 		for (let j=0; j<HISTORIES; j++) {
-			t = t - (30 + randRange(-10, 10)) * 60;
+			t = t - (TIME_STEP + randRange(-TIME_STEP_VAR, TIME_STEP_VAR)) * 60;
             
             const o = {
                 srcID: nodeIDs[i],
