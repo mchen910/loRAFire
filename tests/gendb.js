@@ -17,9 +17,9 @@ db.on('error', console.error.bind(console, 'MongoDB connection error:'));
 
 
 
-const RANGE = 0.3;
-//const CNTR = [37.512, -121.882];
-const CNTR = [0, 0];
+const RANGE = 0.3; // In degrees (~ 69 miles)
+const CNTR = [37.512, -121.882]; // MISSION PEAK @ CALIFORNIA
+//const CNTR = [0, 0];
 const GATEWAYS = 6;
 const NODES = 20;
 const HISTORIES = 3;
