@@ -1,11 +1,11 @@
+const express = require("express");
+const router = express.Router();
 
-var express = require("express");
-var router = express.Router();
+const path = require("path");
 
 
-// GET home page.
-router.get("/", function (req, res) {
-    res.redirect("/api");
+router.get("/", (req, res) => {
+    res.sendFile(path.join(__dirname, '/pub/index.html'));
 });
 
 module.exports = router;

@@ -1,65 +1,28 @@
 const express = require('express');
 const router = express.Router();
 
-// Require controller modules
 const nodeController = require('../controllers/node');
-const gatewayController = require('../controllers/gateway');
 const historyController = require('../controllers/history');
+const netController = require('../controllers/net');
 
+/* ## Details on each route can be found in the function headers in their controller files ## */
 
-/* ================ NODE ROUTES ================== */
+/* ================ LoRaNet Routes ================== */
+/* To be used by the gateways for data posting and configuration tools for setup */
 
-// GET request for a list of nodes
-router.get('/nodes', nodeController.node_index);
+router.post("/packet", netController.packet_handler);
 
-// GET request for a node by its id
-router.get('/nodes/:id', nodeController.node_show);
+// PUTs & DELETEs nodes
+router.put("/node", nodeController.put);   
+router.delete("/node", nodeController.delete);
 
-// POST request for creating a new node entry
-router.post('/nodes', nodeController.node_create);
+/* ================ Client Routes ================== */
+/* To be used by web client to fetch data */
 
-// DELETE request for deleting an existing node
-router.delete('/nodes/:id', nodeController.node_destroy);
-
-// UPDATE request for updating a node
-router.put('/nodes/:id', nodeController.node_update);
-
-
-/* ================ GATEWAY ROUTES ================== */
-
-// GET request for a list of gateways
-router.get('/gateways', gatewayController.gateway_index);
-
-// GET request for a gateway by its id
-router.get('/gateways/:id', gatewayController.gateway_show);
-
-// POST request for creating a new gateway entry
-router.post('/gateways', gatewayController.gateway_create);
-
-// DELETE request for deleting an existing gateway
-router.delete('/gateways/:id', gatewayController.gateway_destroy);
-
-// UPDATE request for updating a gateway
-router.put('/gateways/:id', gatewayController.gateway_update);
-
-
-
-/* ================ HISTORY ROUTES ================== */
-
-// GET request for a list of nodes
-router.get('/history', historyController.history_index);
-
-// GET request for the history of a node by its id
-router.get('/history/:id', historyController.history_show);
-
-// POST request for creating a new history entry
-router.post('/history', historyController.history_create);
-
-// DELETE request for deleting an existing history entry
-router.delete('/history/:id', historyController.history_destroy);
-
-// PUT request for updating history
-router.put('history/:id', historyController.history_update);
+router.get("/nodes", nodeController.get_nodes);             // Returns all nodes, with their adjacency list 
+router.get("/gateways", nodeController.get_gateways);       // Returns all gateways, with their adjacency list
+router.get("/history/", historyController.get_all);         // Returns an object where 'obj[id] = history'. A cutoff time can be queried 
+router.get("/history/:id", historyController.get_by_node);  // Returns the history of a node given a time interval
 
 
 module.exports = router;

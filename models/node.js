@@ -4,18 +4,17 @@ var Schema = mongoose.Schema;
 var Types = mongoose.Types;
 
 const NodeSchema = new Schema({
-    // There is no N/S, W/E, just positive and negative values
+    _id: Number,
+    gateway: { type: Boolean, default: false },
+    lastPacketID: { type: Number, default: -1 },
     location: {
         latitude: Number,
         longitude: Number,
     },
-
-    online: { type: Boolean, default: true },
-    gatewayID: { type: Types.ObjectId },
+    lastPing: { type: Date, default: Date.now },
+    adjacencies: [{type: Number}]
 },
-
     { versionKey: false }
-)
-
+);
 
 module.exports = mongoose.model('Node', NodeSchema)
