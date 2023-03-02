@@ -1,8 +1,9 @@
 const express = require("express");
 const router = express.Router();
+const path = require("path");
 
 router.get("/", (req, res) => {
-    res.send("under construction :p");
+    res.send("under construction");
 });
 
 module.exports = router;
