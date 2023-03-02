@@ -80,6 +80,15 @@ function Map() {
       scale: 2
     }
 
+    const offlineNodeImage = {
+      path: "M 4,8 a 4,4 0 1,1 8,0 a 4,4 0 1,1 -8,0",
+      fillColor: "red",
+      fillOpacity: 2, 
+      strokeWeight: 1,
+      rotation: 0,
+      scale: 2
+    }
+
     const onlineGateImage = {
       path: "M 2 2 H 8 V 8 H 2 L 2 2",
       fillColor: "green",
@@ -89,6 +98,14 @@ function Map() {
       scale: 2
     }
 
+    const offlineGateImage = {
+      path: "M 2 2 H 8 V 8 H 2 L 2 2",
+      fillColor: "red",
+      fillOpacity: 2, 
+      strokeWeight: 1,
+      rotation: 0,
+      scale: 2
+    }
 
 
     return isLoaded ? (
@@ -99,7 +116,7 @@ function Map() {
             onUnmount={onUnmount}>
             {nodeData.map((item, index) => {
                 console.log(index + " " + item.location.latitude + ", " + item.location.longitude);
-                return (
+                return (item.online == true) ? (
                   <MarkerF key={index}
                   position={
                     {
@@ -109,13 +126,25 @@ function Map() {
                   }
                   icon={onlineNodeImage}
                   />
+                ) : (
+                  <MarkerF key={index}
+                  position={
+                    {
+                      lat:item.location.latitude,
+                      lng:item.location.longitude
+                    }
+                  }
+                  icon={offlineNodeImage}
+                  />
                 )
-            })
+            }
+            )
           }
 
-          {gateData.map((item, index) => {
+          {
+          gateData.map((item, index) => {
               console.log(index + " " + item.location.latitude + ", " + item.location.longitude);
-              return (
+              return (item.online == true) ? (
                 <MarkerF key={index}
                 position={
                   {
@@ -125,12 +154,21 @@ function Map() {
                 }
                 icon={onlineGateImage}
                 />
+              ) : (
+                <MarkerF key={index}
+                position={
+                  {
+                    lat:item.location.latitude,
+                    lng:item.location.longitude
+                  }
+                }
+                icon={offlineGateImage}
+                />                
               )
-          })
-
-            //<Marker position={{ lat: 18.52043, lng: 73.856743 }} />
             }
-            </GoogleMap>
+          )
+          }
+          </GoogleMap>
         </>
     ) : <></>
 }
