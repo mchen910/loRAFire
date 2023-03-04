@@ -1,7 +1,5 @@
 import React, {useEffect, useState} from 'react';
-import { StyleSheet } from 'react-native';
-import {GoogleMap, LoadScript, MarkerF, useJsApiLoader} from "@react-google-maps/api";
-import { auto } from '@popperjs/core';
+import {GoogleMap, MarkerF, useJsApiLoader} from "@react-google-maps/api";
 import moment from 'moment';
 
 /*
@@ -9,16 +7,9 @@ https://www.digitalocean.com/community/tutorials/how-to-integrate-the-google-map
 */
 
 
-function Map(nodeData) {
+const Map = (props) => {
     /* ================================== PASSBACK OF SELECTED MARKER TO PARENT COMP ================================== */
     const [selectedCenter, setSelectedCenter] = useState(null);
-
-    const parentToChild = (item) => {
-      setSelectedCenter(item);
-      //parentCallback(item);
-      console.log(JSON.stringify(selectedCenter));
-    }
-
 
     /* ================================== HELPER FUNCTIONS + CUSTOMIZABLE CONSTANTS ================================== */
     const timeIntervalLockout = 180;
@@ -52,7 +43,7 @@ function Map(nodeData) {
     const [map, setMap] = useState(null);
 
     const onLoad = React.useCallback(function callback(map) {
-      nodeData.nodeData.map(l => {
+      props.nodeData.map(l => {
         coordinates.lat.push(Number(l.location.latitude))
         coordinates.lng.push(Number(l.location.longitude))
       })
@@ -133,7 +124,7 @@ function Map(nodeData) {
             options = {OPTIONS}
             >
             {
-              nodeData.nodeData.map((item, index) => {
+              props.nodeData.map((item, index) => {
                 //console.log(index + " " + item.location.latitude + ", " + item.location.longitude);
                 return (
                     <MarkerF key={index}
@@ -144,7 +135,7 @@ function Map(nodeData) {
                     icon={(item.gateway == true) ? (calcOffline(item.lastPing) ? offlineGateImage : onlineGateImage) : (calcOffline(item.lastPing) ? offlineNodeImage : onlineNodeImage)}
                     
                     onClick = {() => {
-                      parentToChild(item);
+                      props.parentCallback(item);
                     }}
                     />
                   )
