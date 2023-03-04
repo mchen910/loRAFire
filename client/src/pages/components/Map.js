@@ -2,75 +2,91 @@ import React, {useEffect, useState} from 'react';
 import { StyleSheet } from 'react-native';
 import {GoogleMap, LoadScript, MarkerF, useJsApiLoader} from "@react-google-maps/api";
 import { auto } from '@popperjs/core';
+import moment from 'moment';
 
 /*
 https://www.digitalocean.com/community/tutorials/how-to-integrate-the-google-maps-api-into-react-applications
 */
 
 
-function Map() {
-    const [nodeData, setNodeData] = useState([]);
-    const [gateData, setGateData] = useState([]);
+function Map(nodeData) {
+    /* ================================== PASSBACK OF SELECTED MARKER TO PARENT COMP ================================== */
+    const [selectedCenter, setSelectedCenter] = useState(null);
 
-    useEffect(() => {
-      fetch("http://localhost:5000/api/nodes").then(
-        response => response.json()
-      ).then(
-        data => setNodeData(data)
-      )
-    }, []);
-    //console.log(nodeData);
+    const parentToChild = (item) => {
+      setSelectedCenter(item);
+      //parentCallback(item);
+      console.log(JSON.stringify(selectedCenter));
+    }
 
 
-    useEffect(() => {
-      fetch("http://localhost:5000/api/gateways").then(
-        response => response.json()
-      ).then(
-        data => setGateData(data)
-      )
-    }, []);
+    /* ================================== HELPER FUNCTIONS + CUSTOMIZABLE CONSTANTS ================================== */
+    const timeIntervalLockout = 180;
+  
+    const OPTIONS = {
+      minZoom: 2.0,
+      maxZoom: 18.0,
+      disableDefaultUI: true,
+    }
+
+    const { isLoaded } = useJsApiLoader({
+      id: 'google-map-script',
+      googleMapsApiKey: "AIzaSyA3Ow506dj9kpI7quNGe9aU9Qul0XdPSAM"
+  })
+
+    const coordinates = {
+      lat: [],
+      lng: [],
+    }
+  
 
     const containerStyle = {
         height: "100%",
         width: "100%",
         padding: "auto",
         margin: "auto",
-        position: "absolute"
+        position: "absolute",
+        overflow: "visible"
     };
-      
-
-    const { isLoaded } = useJsApiLoader({
-        id: 'google-map-script',
-        googleMapsApiKey: "AIzaSyA3Ow506dj9kpI7quNGe9aU9Qul0XdPSAM"
-    })
-
-    console.log(isLoaded.googleMapsApiKey);
 
     const [map, setMap] = useState(null);
-    
-    const totalData = nodeData.concat(gateData);
 
     const onLoad = React.useCallback(function callback(map) {
-        const bounds = new window.google.maps.LatLngBounds();
-        let len = totalData.length;
-        while (len--) {
-            let lat = totalData[len].location.latitude;
-            let long = totalData[len].location.longitude;
-            console.log(lat, long);
-            bounds.extend({lat, long});
-        }
+      nodeData.nodeData.map(l => {
+        coordinates.lat.push(Number(l.location.latitude))
+        coordinates.lng.push(Number(l.location.longitude))
+      })
 
-        map.setCenter(bounds.getCenter());
-        map.fitBounds(bounds);
-        console.log(map);
+      console.log(coordinates);
+    
+      const averageLng = (Math.max(...coordinates.lng) + Math.min(...coordinates.lng)) / 2;
+      const averageLat = (Math.max(...coordinates.lat) + Math.min(...coordinates.lat)) / 2;
 
+      console.log(averageLng, averageLat);
+
+        map.setCenter({lat: 0, lng: 0});
+        map.setZoom(2.0);
+        console.log("ZOOM", map.getZoom());
+        console.log("CENTER", map.getCenter());
         setMap(map);
-    }, []);
+
+
+      }, []);
+    
 
     const onUnmount = React.useCallback(function callback(map) {
         setMap(null);
     }, []);
 
+    function calcOffline(timeStamp) {
+      const currDate = new Date(moment().toISOString());
+      const timeDate = new Date(timeStamp);
+      //console.log(currDate, timeDate);
+      let minutes = (currDate - timeDate) / (1000 * 60);
+      return minutes > timeIntervalLockout;
+    }
+
+    /* ================================== SVG ICONS FOR NODES AND GATEWAYS ================================== */
     const onlineNodeImage = {
       path: "M 4,8 a 4,4 0 1,1 8,0 a 4,4 0 1,1 -8,0",
       fillColor: "green",
@@ -106,68 +122,36 @@ function Map() {
       rotation: 0,
       scale: 2
     }
-
-
+    
+    /* ================================== RENDERING OF MAP COMPONENT ================================== */
     return isLoaded ? (
         <>
             <GoogleMap
             mapContainerStyle={containerStyle}
             onLoad={onLoad}
-            onUnmount={onUnmount}>
-            {nodeData.map((item, index) => {
-                console.log(index + " " + item.location.latitude + ", " + item.location.longitude);
-                return (item.online == true) ? (
-                  <MarkerF key={index}
-                  position={
-                    {
-                      lat:item.location.latitude,
-                      lng:item.location.longitude
-                    }
-                  }
-                  icon={onlineNodeImage}
-                  />
-                ) : (
-                  <MarkerF key={index}
-                  position={
-                    {
-                      lat:item.location.latitude,
-                      lng:item.location.longitude
-                    }
-                  }
-                  icon={offlineNodeImage}
-                  />
-                )
-            }
-            )
-          }
-
-          {
-          gateData.map((item, index) => {
-              console.log(index + " " + item.location.latitude + ", " + item.location.longitude);
-              return (item.online == true) ? (
-                <MarkerF key={index}
-                position={
-                  {
-                    lat:item.location.latitude,
-                    lng:item.location.longitude
-                  }
+            onUnmount={onUnmount}
+            options = {OPTIONS}
+            >
+            {
+              nodeData.nodeData.map((item, index) => {
+                //console.log(index + " " + item.location.latitude + ", " + item.location.longitude);
+                return (
+                    <MarkerF key={index}
+                    position={{
+                        lat:item.location.longitude,
+                        lng:item.location.latitude
+                      }}
+                    icon={(item.gateway == true) ? (calcOffline(item.lastPing) ? offlineGateImage : onlineGateImage) : (calcOffline(item.lastPing) ? offlineNodeImage : onlineNodeImage)}
+                    
+                    onClick = {() => {
+                      parentToChild(item);
+                    }}
+                    />
+                  )
                 }
-                icon={onlineGateImage}
-                />
-              ) : (
-                <MarkerF key={index}
-                position={
-                  {
-                    lat:item.location.latitude,
-                    lng:item.location.longitude
-                  }
-                }
-                icon={offlineGateImage}
-                />                
-              )
-            }
-          )
+              ) 
           }
+        
           </GoogleMap>
         </>
     ) : <></>

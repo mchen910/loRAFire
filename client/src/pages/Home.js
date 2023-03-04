@@ -1,10 +1,28 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import {StyleSheet, View} from 'react-native';
 import {Helmet} from 'react-helmet';
 import Map from "./components/Map";
 
+
 function Home() {
-return (
+
+    const [nodeData, setNodeData] = useState([]);
+    useEffect(() => {
+        fetch("http://localhost:5000/api/nodes").then(
+          response => response.json()
+        ).then(
+          data => setNodeData(data)
+        )
+      }, []);
+
+    //console.log(nodeData);
+
+    const handleCallback = (childData) =>{
+        this.setState({name: childData})
+        console.log(JSON.stringify(childData));
+    }
+
+    return nodeData.length ? (
         <>
             <div className="application">
                 <Helmet>
@@ -17,7 +35,7 @@ return (
                     
                 </View>
                 <View style={styles.rightSquare}> 
-                    <Map />
+                    <Map nodeData = {nodeData} parentCallback = {handleCallback}/>
                 </View>
             </View>
 
@@ -28,27 +46,27 @@ return (
             </View>
             
         </>
+    ) : (
+        <div>Loading data...</div>
     )
 };
 
 const styles = StyleSheet.create({
     topContainer: {
-      //backgroundColor: "#45433e",
       flex: 1,
-      alignItems: "stretch", // ignore this - we'll come back to it
-      justifyContent: "center", // ignore this - we'll come back to it
+      alignItems: "stretch",
+      justifyContent: "center",
       flexDirection: "row"
     },
     bottomContainer: {
-        //backgroundColor: "#45433e",
         flex: 1,
-        alignItems: "stretch", // ignore this - we'll come back to it
-        justifyContent: "center", // ignore this - we'll come back to it
+        alignItems: "stretch", 
+        justifyContent: "center", 
         flexDirection: "column"
     },
     leftSquare: {
         backgroundColor: "#292b26",
-        width: "29%",
+        width: "49%",
         height: "50vh",
         marginRight: "0.5%",
         marginLeft: "0.5%",
@@ -58,7 +76,7 @@ const styles = StyleSheet.create({
     },
     rightSquare: {
         backgroundColor: "#292b26",
-        width: "69%",
+        width: "49%",
         height: "50vh",
         marginLeft: "0.5%",
         marginRight: "0.5%",

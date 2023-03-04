@@ -10,7 +10,8 @@ const NodeSchema = new Schema({
         longitude: Number,
     },
     lastPing: { type: Date, default: Date.now },
-    adjacencies: [{type: Number}]
+    adjacencies: [{type: Number}],
+    gateway: Boolean
 },
     { versionKey: false }
 );
