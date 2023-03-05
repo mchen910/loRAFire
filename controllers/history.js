@@ -21,11 +21,11 @@ exports.get_by_node = [
         .withMessage("Invalid node ID"),
     query('start')
         .optional()
-        .isInt({ gt: 1e13 })
+        .isInt()
         .withMessage('Invalid start timestamp'),
     query('end')
         .optional()
-        .isInt({ gt: 1e13 })
+        .isInt()
         .withMessage('Invalid end timestamp'),
     (req, res, next) => {
         const errors = validationResult(req);
@@ -51,7 +51,11 @@ exports.get_by_node = [
         let start = new Date(parseInt(req.query.start));
         let end = new Date(parseInt(req.query.end));
 
-        History.find({srcID: req.param.id, 'timestamp': { $gte: start, $lt: end } })
+        console.log(req.params.id);
+        console.log(new Date(req.query.start).toString());
+        console.log(new Date(req.query.end).toString());
+
+        History.find({srcID: req.params.id, time: { $gte: new Date(start), $lt: new Date(end)} })
             .exec( (err, results) => err? next(err) : res.status(200).json({ results }) );
     }
 ];
