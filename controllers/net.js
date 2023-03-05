@@ -29,7 +29,7 @@ exports.data_post = [
 
         // Create & set history
         historyController.put(id, Date.now(), temp, humidity);
-        
+
         return res.status(204);
     }
 ];
@@ -48,7 +48,7 @@ exports.node_adjacency_post = [
 
         let args = req.query.str.split(":");
         const id = args[0];
-        
+
         // Set adjacency list of node
         nodeController.update(id, Date.now(), args.slice(1));
 
@@ -70,7 +70,7 @@ exports.gateway_adjacency_post = [
 
         let args = req.query.str.split(":");
         const id = args[0];
-        
+
         // Set adjacency list of node
         gatewayController.update(id, Date.now(), args.slice(1));
 

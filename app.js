@@ -21,6 +21,12 @@ db.on('connection', () => console.log("Successfully connected"));
 db.on('error', () => console.error.bind(console, 'MongoDB connection error'));
 app.use(cors());
 
+// Allow fetching from '/pub'
+app.use(express.static("pub"));
+
+// Set render engine to EJS
+app.set("view engine", "ejs");
+
 // Validate the JSON data
 app.use(express.json());
 
@@ -30,7 +36,7 @@ app.use('/api/', apiRouter);
 
 // catch 404 and forward to error handler
 app.use( (req, res, next) => next(createError(404)) );
-  
+
 // error handler
 app.use((err, req, res, next) => {
     // set locals, only providing error in development
