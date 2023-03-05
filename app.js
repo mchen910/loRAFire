@@ -1,6 +1,7 @@
 var createError = require('http-errors');
 var express = require('express');
 var mongoose = require('mongoose');
+var cors = require('cors');
 
 var app = express();
 
@@ -22,7 +23,7 @@ db.on('error', () => console.error.bind(console, 'MongoDB connection error'));
 
 // Validate the JSON data
 app.use(express.json());
-
+app.use(cors());
 
 // Set up routes
 app.use('/', indexRouter);
@@ -46,8 +47,4 @@ app.use((err, req, res, next) => {
     });
 });
 
-<<<<<<< Updated upstream
-=======
-
->>>>>>> Stashed changes
 module.exports = app;

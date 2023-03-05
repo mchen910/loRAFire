@@ -6,13 +6,6 @@ const Node = require('../models/node');
 // PUT <id> <latitude> <longitude>: Spawns new node document
 // DELETE <id>: Delete node with id=<id> 
 
-<<<<<<< Updated upstream
-// GET: Returns all nodes 
-// GET <id>: Returns node with id=<id>
-
-// ======== Private Functions ======= 
-// update (id, lastPing, adj): updates document of node <id>
-=======
 // GET (nodes): Returns all nodes 
 // GET (gateway): Returns all gateway 
 // GET <id>: Returns node with id=<id>
@@ -20,7 +13,6 @@ const Node = require('../models/node');
 
 // ======== Private Functions ======= 
 // update (id, lastPacketID, lastPing, adj): updates document of node <id>
->>>>>>> Stashed changes
 
 
 // PUT <id> <latitude> <longitude>: Spawns new node document
@@ -73,19 +65,12 @@ exports.delete = [
 
 
 // GET: Returns all nodes 
-<<<<<<< Updated upstream
-exports.get_all = (req, res, next) => {
-    Node.find()
-=======
 exports.get_nodes = (req, res, next) => {
     Node.find({gateway: false})
->>>>>>> Stashed changes
         .sort([['_id', 'ascending']])
         .exec((err, nodeList) => err ? next(err) : res.status(200).json(nodeList));
 };
 
-<<<<<<< Updated upstream
-=======
 // GET: Returns all gateways 
 exports.get_gateways = (req, res, next) => {
     Node.find({gateway: true})
@@ -94,7 +79,6 @@ exports.get_gateways = (req, res, next) => {
 };
 
 
->>>>>>> Stashed changes
 // GET <id>: Returns node with id=<id>
 exports.get = (req, res, next) => {
     Node.findById(req.params.id, function (err, node) {
@@ -115,13 +99,8 @@ exports.get = (req, res, next) => {
     });
 };
 
-<<<<<<< Updated upstream
-// update (id, lastPing, adj): updates document of node <id>
-exports.update = (id, lastPing, adj) => { 
-=======
 // update (id, lastPacketID, lastPing, adj): updates document of node <id>
 exports.update = (id, lastPacketID, lastPing, adj) => { 
->>>>>>> Stashed changes
     console.log("Node update request");
     const node = new Node({
         lastPing: lastPing ? new Date(lastPing) : undefined,

@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from 'react';
-import {GoogleMap, MarkerF, useJsApiLoader} from "@react-google-maps/api";
+import {GoogleMap, Marker, useJsApiLoader} from "@react-google-maps/api";
 import moment from 'moment';
 
 /*
@@ -43,26 +43,14 @@ const Map = (props) => {
     const [map, setMap] = useState(null);
 
     const onLoad = React.useCallback(function callback(map) {
-      props.nodeData.map(l => {
-        coordinates.lat.push(Number(l.location.latitude))
-        coordinates.lng.push(Number(l.location.longitude))
-      })
-
-      console.log(coordinates);
-    
-      const averageLng = (Math.max(...coordinates.lng) + Math.min(...coordinates.lng)) / 2;
-      const averageLat = (Math.max(...coordinates.lat) + Math.min(...coordinates.lat)) / 2;
-
-      console.log(averageLng, averageLat);
-
         map.setCenter({lat: 0, lng: 0});
         map.setZoom(2.0);
         console.log("ZOOM", map.getZoom());
         console.log("CENTER", map.getCenter());
         setMap(map);
 
-
-      }, []);
+      //console.log(props.data);
+    }, []);
     
 
     const onUnmount = React.useCallback(function callback(map) {
@@ -114,6 +102,27 @@ const Map = (props) => {
       scale: 2
     }
     
+    const declareIcon = (item) => {
+      if (item.gateway == true) {
+        if (calcOffline(item.lastPing)) {
+          console.log("HERE");
+          return offlineGateImage;
+        } else {
+          console.log("HERE");
+          return onlineGateImage;
+        }
+      } 
+      else {
+        if (calcOffline(item.lastPing)) {
+          return offlineNodeImage;
+        } else {
+          return onlineNodeImage;
+        }
+      }
+
+      return null;
+    }
+
     /* ================================== RENDERING OF MAP COMPONENT ================================== */
     return isLoaded ? (
         <>
@@ -124,15 +133,15 @@ const Map = (props) => {
             options = {OPTIONS}
             >
             {
-              props.nodeData.map((item, index) => {
-                //console.log(index + " " + item.location.latitude + ", " + item.location.longitude);
+              props.data.map((item, index) => {
+                console.log(index + " " + item.location.latitude + ", " + item.location.longitude + ", " + item.gateway + ", " + calcOffline(item.lastPing));
                 return (
-                    <MarkerF key={index}
+                    <Marker key={index}
                     position={{
                         lat:item.location.longitude,
                         lng:item.location.latitude
                       }}
-                    icon={(item.gateway == true) ? (calcOffline(item.lastPing) ? offlineGateImage : onlineGateImage) : (calcOffline(item.lastPing) ? offlineNodeImage : onlineNodeImage)}
+                    icon={declareIcon(item)}
                     
                     onClick = {() => {
                       props.parentCallback(item);
@@ -142,7 +151,6 @@ const Map = (props) => {
                 }
               ) 
           }
-        
           </GoogleMap>
         </>
     ) : <></>

@@ -10,7 +10,8 @@
     "client": "cd client && npm run start",
     "build:client": "cd client && npm run build",
     "iall": "npm i && cd client && npm i",
-    "startboth": "npm run dev & npm run client"
+    "startboth": "npm run dev & npm run client",
+    "test-gen": "node tests/gendb.js"
   },
   "author": "Matthew Chen, Shine Chang, Bhargav Eranki",
   "license": "ISC",

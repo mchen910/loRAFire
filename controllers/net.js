@@ -10,36 +10,12 @@ const Node = require('../models/node');
 // POST <str>: Handles all data packets from the LoRaNet. query format: "?str=[base64 packet]"
 
 
-<<<<<<< Updated upstream
-// POST <str>: Handles data packet post from gateways. query format: "?str=[node]:[temp]:[humidity]"
-exports.data_post = [
-    query("str")
-        .exists()
-        .isString(),
-    (req, res, next) => {
-        const errors = validationResult(req);
-        if (!errors.isEmpty()) {
-            res.status(400).json({ errors: errors.array() });
-            return;
-        }
-
-        let args = req.query.str.split(":");
-        const id = parseInt(args[0]);
-        const temp = parseInt(args[1]);
-        const humidity = parseInt(args[2]);
-
-        // Create & set history
-        historyController.put(id, Date.now(), temp, humidity);
-        
-        return res.status(204);
-=======
 // helper, extracts value from byte stream
 const intFromBytes = (buf, start, len) => {
     let x = 0;
     for (let i = 0; i < len; i++) {
         x <<= 8;
         x += buf[start + i];
->>>>>>> Stashed changes
     }
     return x;
 };
@@ -50,13 +26,6 @@ exports.packet_handler = [
     (req, res, next) => {
         console.log("Got req, body: ", req.body);
 
-<<<<<<< Updated upstream
-        let args = req.query.str.split(":");
-        const id = args[0];
-        
-        // Set adjacency list of node
-        nodeController.update(id, Date.now(), args.slice(1));
-=======
         // Parse message & extract header
         const buf = Buffer.from(req.body, "base64");
         const header = intFromBytes(buf, 0, 1);
@@ -82,7 +51,6 @@ exports.packet_handler = [
                 console.log("Oudated Packet, last ID: ", node.lastPacketID); 
                 return res.status(400).send("Outdated Packet");           
             }
->>>>>>> Stashed changes
 
 
             switch (header) {
@@ -109,29 +77,4 @@ exports.packet_handler = [
             }
         });
     }
-<<<<<<< Updated upstream
-];
-
-// POST <str>: Handles a gateway adjacency packet post. query format: "?str=[gateway]:[adj]..."
-exports.gateway_adjacency_post = [
-    query("str")
-        .exists()
-        .isString(),
-    (req, res, next) => {
-        const errors = validationResult(req);
-        if (!errors.isEmpty()) {
-            res.status(400).json({ errors: errors.array() });
-            return;
-        }
-
-        let args = req.query.str.split(":");
-        const id = args[0];
-        
-        // Set adjacency list of node
-        gatewayController.update(id, Date.now(), args.slice(1));
-
-        return res.status(204);
-    }
-=======
->>>>>>> Stashed changes
 ];

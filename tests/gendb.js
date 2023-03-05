@@ -20,8 +20,8 @@
 
 
 const async = require('async');
-const Node = require('./models/node');
-const History = require('./models/History');
+const Node = require('../models/node');
+const History = require('../models/History');
 
 let mongoose = require('mongoose');
 
@@ -109,6 +109,7 @@ const genNodes = () => {
 				longitude: CNTR[0] + lon,
 				latitude: CNTR[1] + lat
 			},
+            gateway: false,
 		};
 		console.log(`(${o.location.longitude}, ${o.location.latitude})`);
 		list.push( cb => {

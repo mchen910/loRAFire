@@ -18,25 +18,27 @@ function Home() {
         )
       }, []);
 
+    const [gateData, setGateData] = useState([]);
+    useEffect(() => {
+        fetch("http://localhost:5000/api/gateways").then(
+            response => response.json()
+          ).then(
+            data => setGateData(data)
+          )
+    }, [])
+
+    let totalData = gateData.concat(nodeData);
+
     const [retrieved, setRetrieved] = useState();
     const [retrievedTimeStamps, setRetrievedTimeStamps] = useState([]);
     
     const handleCallback = (childData) =>{
         setRetrieved(childData);
         console.log(JSON.stringify(retrieved));
-        if (retrieved != null) {
-            fetch("http://localhost:5000/api/history/" + retrieved._id).then(
-                response => response.json()
-            ).then(
-                data => setRetrievedTimeStamps(data)
-            )
-
-            console.log(retrievedTimeStamps);
-        }
 
     }
 
-    return nodeData.length ? (
+    return totalData.length == 26 ? (
         <>
             <div className="application">
                 <Helmet>
@@ -73,7 +75,7 @@ function Home() {
                     }
                 </View>
                 <View style={styles.rightSquare}> 
-                    <Map nodeData = {nodeData} parentCallback = {handleCallback}/>
+                    <Map data = {totalData} parentCallback = {handleCallback}/>
                 </View>
             </View>
 
@@ -85,7 +87,7 @@ function Home() {
                                 <br /> 
                                 <ul>
                                     <li>
-                                        <h4>imagine there is a timeline here uwu</h4>
+                                        <p></p>
                                     </li>
                                 </ul>
                             </div>
