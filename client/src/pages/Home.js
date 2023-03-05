@@ -38,7 +38,7 @@ function Home() {
 
     }
 
-    return totalData.length == 26 ? (
+    return totalData.length ? (
         <>
             <div className="application">
                 <Helmet>

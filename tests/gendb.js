@@ -106,8 +106,8 @@ const genNodes = () => {
 		const o = {
 			_id: id,
 			location: {
-				longitude: CNTR[0] + lon,
-				latitude: CNTR[1] + lat
+				longitude: CNTR[1] + lon,
+				latitude: CNTR[0] + lat
 			},
             gateway: false,
 		};

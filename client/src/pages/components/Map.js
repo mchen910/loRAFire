@@ -138,8 +138,8 @@ const Map = (props) => {
                 return (
                     <Marker key={index}
                     position={{
-                        lat:item.location.longitude,
-                        lng:item.location.latitude
+                        lat:item.location.latitude,
+                        lng:item.location.longitude
                       }}
                     icon={declareIcon(item)}
                     
