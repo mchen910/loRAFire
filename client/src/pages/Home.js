@@ -3,19 +3,19 @@ import {StyleSheet, View} from 'react-native';
 import {Helmet} from 'react-helmet';
 import moment from 'moment';
 
-
 import Map from "./components/Map";
-
+import Timeline from "./components/Timeline";
 
 function Home() {
 
-    /* ================================== PASSBACK OF SELECTED MARKER TO PARENT COMP ================================== */
+    /* ================================== HANDLING PASSBACK OF SELECTED CHILD MARKER =================================== */
     
-    const [timelineData, setTimelineData] = useState([]);
+    const [timelineData, setTimelineData] = useState({});
     const [retrieved, setRetrieved] = useState();
     const [gateData, setGateData] = useState([]);
     const [nodeData, setNodeData] = useState([]);
     const [latestNodeInfo, setLatestNodeInfo] = useState({});
+
 
     useEffect(() => {
         fetch("http://localhost:5000/api/nodes").then(
@@ -34,7 +34,14 @@ function Home() {
           )
     }, [])
 
-    
+    function calcOffline(timeStamp) {
+        const timeIntervalLockout = 180;
+        const currDate = new Date(moment().toISOString());
+        const timeDate = new Date(timeStamp);
+        //console.log(currDate, timeDate);
+        let minutes = (currDate - timeDate) / (1000 * 60);
+        return minutes > timeIntervalLockout;
+    }
 
     const [retrievedTimeStamps, setRetrievedTimeStamps] = useState([]);
     fetch("http://localhost:5000/api/history/").then(
@@ -47,17 +54,17 @@ function Home() {
 
     const handleCallback = (childData) =>{
         setRetrieved(childData);
-        
-        let t = [];
-    
-        /*Object.entries(retrievedTimeStamps).forEach((entry) => {
-            const [key, value] = entry;
-            console.log(`${key} : ${JSON.stringify(value)}`);
-            if (key == childData._id)
-        })*/
-        
+        console.log(timelineData);
+
+        fetch(`http://localhost:5000/api/history/${childData._id}`).then(
+            (response) => response.json() 
+        ).then(
+            data => setTimelineData(data)
+        );
+        //console.log(timelineData.results);
+
         setLatestNodeInfo(retrievedTimeStamps[childData._id]);
-        setTimelineData(t);
+        //setTimelineData(t);
     }
 
     /* ================================== RENDER OF MAIN HOME FRAME ================================== */
@@ -76,7 +83,7 @@ function Home() {
                             if (retrieved != null) {
                                 if (retrieved.gateway == false && latestNodeInfo != null) {
                                     return (<div>
-                                        <div style={styles.title}>
+                                        <div style={(calcOffline(retrieved.lastPing)) ? styles.offlineTitle : styles.onlineTitle}>
                                             <h2>{("Node-") + retrieved._id }</h2>
                                         </div>
                                         <div style={styles.subInfo}>
@@ -89,9 +96,9 @@ function Home() {
                                             </ul>
                                         </div>
                                     </div>)
-                                } else if (retrieved.gateway == true) {
+                                } else {
                                     return (<div>
-                                        <div style={styles.title}>
+                                        <div style={(calcOffline(retrieved.lastPing)) ? styles.offlineTitle : styles.onlineTitle}>
                                             <h2>{("Gateway-") + retrieved._id }</h2>
                                         </div>
                                         <div style={styles.subInfo}>
@@ -107,6 +114,7 @@ function Home() {
                         
                     }
                 </View>
+
                 <View style={styles.rightSquare}> 
                     <Map data = {totalData} parentCallback = {handleCallback}/>
                 </View>
@@ -114,27 +122,7 @@ function Home() {
 
             <View style={styles.bottomContainer}>
                 <View style={styles.rectangle}>
-                    {
-                        (retrieved != null) ? (
-                            <div style={styles.subInfo}>
-                                <br /> 
-                                <ul>
-                                    <li>
-                                        <p></p>
-                                    </li>
-                                </ul>
-                            </div>
-                        ) : (
-                            <div style={styles.subInfo}>
-                                <br /> 
-                                <ul>
-                                    <li>
-                                        <h4>Select node. </h4>
-                                    </li>
-                                </ul>
-                            </div>
-                        )
-                    }
+
                 </View>
             </View>
             
@@ -192,13 +180,20 @@ const styles = StyleSheet.create({
         display: "inline-block",
         position: "relative"
     },
-    title: {
+    onlineTitle: {
         //textAlign: "center",
         marginLeft: "10px",
-        color: "#3497e3"
+        color: "#32a852"
+    },
+    offlineTitle: {
+        marginLeft: "10px",
+        color: "#a83232"
+    },
+    rootDiv: {
+        marginTop: "50px" 
     },
     subInfo: {
-        color: "#dee0e3"
+        color: "#e6d7d5"
     }
   });
 
