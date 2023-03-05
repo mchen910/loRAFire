@@ -102,10 +102,10 @@ exports.get = (req, res, next) => {
 // update (id, lastPacketID, lastPing, adj): updates document of node <id>
 exports.update = (id, lastPacketID, lastPing, adj) => { 
     console.log("Node update request");
-    const node = new Node({
+    const node = {
         lastPing: lastPing ? new Date(lastPing) : undefined,
         adjacencies: adj,
-    });
+    };
     Node.findByIdAndUpdate(
         id,
         node,

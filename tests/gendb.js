@@ -44,7 +44,8 @@ const GATEWAYS = 6;
 const NODES = 20;
 const HISTORIES = 3;
 const TIME_STEP = 30;
-const TIME_STEP_VAR = 10
+const TIME_STEP_VAR = 10;
+const ADJ_DIST = 0.01;
 
 const gatewayIDs = [];
 const nodeIDs = [];
@@ -59,36 +60,6 @@ const crash = (err) => {
     mongoose.connection.close();
     process.exit(1);
 };
-
-const genGateways = () => {
-	const list = [];
-
-	for (let i=0; i<GATEWAYS; i++) {
-
-		const a = Math.random() * 360;
-		const r = RANGE + randRange(-3, 3) / 69; 
-		const lon = Math.sin(a) * r;
-		const lat = Math.cos(a) * r;
-
-        const id = 2000 + i+1;
-        gatewayIDs[i] = id;
-
-		const o = {
-			_id: id,
-			location: {
-				longitude: CNTR[1] + lon,
-				latitude: CNTR[0] + lat
-			},
-            gateway: true,
-		};
-		console.log(`(${o.location.longitude}, ${o.location.latitude})`);
-        list.push(cb => { 
-            const g = new Node(o);
-            g.save(e => e ? crash(e) : cb());
-        });
-	}
-	return list;
-}
 
 const genNodes = () => {
 	const list = [];
@@ -120,6 +91,62 @@ const genNodes = () => {
 	return list;
 }
 
+const genGateways = () => {
+	const list = [];
+
+	for (let i=0; i<GATEWAYS; i++) {
+
+		const a = Math.random() * 360;
+		const r = RANGE + randRange(-3, 3) / 69; 
+		const lon = Math.sin(a) * r;
+		const lat = Math.cos(a) * r;
+
+        const id = 2000 + i+1;
+        gatewayIDs[i] = id;
+
+		const o = {
+			_id: id,
+			location: {
+				longitude: CNTR[1] + lon,
+				latitude: CNTR[0] + lat
+			},
+            gateway: true,
+		};
+		console.log(`(${o.location.longitude}, ${o.location.latitude})`);
+        list.push(cb => { 
+            const g = new Node(o);
+            g.save(e => e ? crash(e) : cb());
+        });
+	}
+	return list;
+}
+
+const genAdj = async () => {
+    const nodes = await Node.find()
+        .sort([['_id', 'ascending']]);
+
+    const dist = (a, b) => {
+        const dlon = a.location.longitude - b.location.longitude;
+        const dlat = a.location.latitude - b.location.latitude;
+        return dlon * dlon + dlat * dlat;
+    }
+
+    for (let i=0; i<nodes.length; i++) {
+        for (let j=i+1; j<nodes.length; j++) {
+            if (nodes[i].gateway && nodes[j].gateway) continue;
+            if (dist(nodes[i], nodes[j]) < ADJ_DIST) {
+                nodes[i].adjacencies.push(nodes[j]._id);
+                nodes[j].adjacencies.push(nodes[i]._id);
+            }
+        }
+    }
+    const list = [];
+    for (let i=0; i<nodes.length; i++) 
+        await nodes[i].save();
+    
+    return list;
+}
+
 const genHistory = () => {
 	const list = [];
 	for (let i=0; i<NODES; i++) {
@@ -146,8 +173,9 @@ const genHistory = () => {
 async function run () {
     await Node.collection.drop();
     await History.collection.drop();
-    await async.parallel(genGateways());
     await async.parallel(genNodes());
+    await async.parallel(genGateways());
+    await genAdj();
     await async.parallel(genHistory());
 
     console.log("Done");
