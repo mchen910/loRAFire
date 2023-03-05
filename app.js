@@ -1,7 +1,7 @@
 var createError = require('http-errors');
 var express = require('express');
 var mongoose = require('mongoose');
-var cors = require('cors');
+
 var app = express();
 
 const indexRouter = require('./routes/index');
@@ -11,7 +11,6 @@ require('dotenv').config({ path: "./config.env"});
 
 // Setting up database connection
 var mongoDB = process.env.DATABASE_URI;
-console.log(mongoDB);
 mongoose.connect(mongoDB, {useNewUrlParser: true, useUnifiedTopology: true});
 mongoose.Promise = global.Promise;
 
@@ -19,14 +18,16 @@ mongoose.Promise = global.Promise;
 var db = mongoose.connection;
 db.on('connection', () => console.log("Successfully connected"));
 db.on('error', () => console.error.bind(console, 'MongoDB connection error'));
-app.use(cors());
+
 
 // Validate the JSON data
 app.use(express.json());
 
+
 // Set up routes
 app.use('/', indexRouter);
 app.use('/api/', apiRouter);
+
 
 // catch 404 and forward to error handler
 app.use( (req, res, next) => next(createError(404)) );
@@ -45,4 +46,8 @@ app.use((err, req, res, next) => {
     });
 });
 
+<<<<<<< Updated upstream
+=======
+
+>>>>>>> Stashed changes
 module.exports = app;

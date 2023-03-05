@@ -27,8 +27,13 @@ router.delete("/gateway", gatewayController.delete);
 /* ================ Client Routes ================== */
 /* To be used by web client to fetch data */
 
+<<<<<<< Updated upstream
 router.get("/nodes", nodeController.get_all);               // Returns all nodes, with their adjacency list 
 router.get("/gateways", gatewayController.get_all);         // Returns all gateways, with their adjacency list
+=======
+router.get("/nodes/", nodeController.get_nodes);             // Returns all nodes, with their adjacency list 
+router.get("/gateways/", nodeController.get_gateways);       // Returns all gateways, with their adjacency list
+>>>>>>> Stashed changes
 router.get("/history/", historyController.get_all);         // Returns an object where 'obj[id] = history'. A cutoff time can be queried 
 router.get("/history/:id", historyController.get_by_node);  // Returns the history of a node given a time interval
 
