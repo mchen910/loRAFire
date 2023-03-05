@@ -21,11 +21,11 @@
 
 const async = require('async');
 const Node = require('../models/node');
-const History = require('../models/History');
+const History = require('../models/history');
 
 let mongoose = require('mongoose');
 
-require('dotenv').config({ path: "./config.env" });
+require('dotenv').config({ path: "./.env" });
 let mongoDB = process.env.DATABASE_URI;
 
 // Connect to the database
@@ -160,6 +160,7 @@ const genHistory = () => {
                 temp: randRange(40, 80),
                 humidity: randRange(20, 70),
                 smokeLevel: randRange(10, 200),
+                time: new Date(t),
             };
             list.push( cb => {
                 const h = new History(o);

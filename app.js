@@ -8,7 +8,7 @@ var app = express();
 const indexRouter = require('./routes/index');
 const apiRouter = require('./routes/api');
 
-require('dotenv').config({ path: "./config.env"});
+require('dotenv').config({ path: "./.env"});
 
 // Setting up database connection
 var mongoDB = process.env.DATABASE_URI;

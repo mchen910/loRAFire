@@ -8,9 +8,9 @@ const HistorySchema = new Schema({
     temp: Number,
     humidity: Number,
     smokeLevel: Number,
+    time: Date,
 },
     {
-        timestamps: true,
         versionKey: false
     },
 );
