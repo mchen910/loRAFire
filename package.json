@@ -1,5 +1,5 @@
 {
-  "name": "LoRaBase",
+  "name": "lora-fire",
   "version": "1.0.0",
   "main": "app.js",
   "scripts": {
@@ -36,21 +36,6 @@
   },
   "devDependencies": {
     "eslint": "^8.34.0",
-    "dev": "nodemon index.js",
-    "test-populate": "node tests/populatedb.js",
-    "test-gen": "node tests/gendb.js"
-  },
-  "author": "Matthew Chen, Shine Chang",
-  "license": "ISC",
-  "description": "",
-  "dependencies": {
-    "async": "^3.2.4",
-    "dotenv": "^16.0.3",
-    "express": "^4.18.2",
-    "express-validator": "^6.14.2",
-    "mongoose": "^6.7.3"
-  },
-  "devDependencies": {
     "nodemon": "^2.0.20"
   }
 }
