@@ -27,15 +27,23 @@ function Home() {
           )
     }, [])
 
+    const [retrievedTimeStamps, setRetrievedTimeStamps] = useState([]);
+
+
     let totalData = gateData.concat(nodeData);
 
     const [retrieved, setRetrieved] = useState();
-    const [retrievedTimeStamps, setRetrievedTimeStamps] = useState([]);
     
     const handleCallback = (childData) =>{
         setRetrieved(childData);
-        console.log(JSON.stringify(retrieved));
+        console.log(retrieved._id);
+        fetch("http://localhost:5000/api/history/" + String(retrieved._id)).then(
+            response => response.json()
+        ).then(
+            data => setRetrievedTimeStamps(data)
+        )
 
+        console.log(JSON.stringify(retrievedTimeStamps));
     }
 
     return totalData.length ? (

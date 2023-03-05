@@ -105,10 +105,8 @@ const Map = (props) => {
     const declareIcon = (item) => {
       if (item.gateway == true) {
         if (calcOffline(item.lastPing)) {
-          console.log("HERE");
           return offlineGateImage;
         } else {
-          console.log("HERE");
           return onlineGateImage;
         }
       } 
@@ -134,7 +132,7 @@ const Map = (props) => {
             >
             {
               props.data.map((item, index) => {
-                console.log(index + " " + item.location.latitude + ", " + item.location.longitude + ", " + item.gateway + ", " + calcOffline(item.lastPing));
+                //console.log(index + " " + item.location.latitude + ", " + item.location.longitude + ", " + item.gateway + ", " + calcOffline(item.lastPing));
                 return (
                     <Marker key={index}
                     position={{
