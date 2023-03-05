@@ -8,13 +8,12 @@ var app = express();
 const indexRouter = require('./routes/index');
 const apiRouter = require('./routes/api');
 
-require('dotenv').config({ path: "./config.env"});
+require('dotenv').config({ path: "./.env"});
 
 // Setting up database connection
 var mongoDB = process.env.DATABASE_URI;
 mongoose.connect(mongoDB, {useNewUrlParser: true, useUnifiedTopology: true});
 mongoose.Promise = global.Promise;
-
 
 var db = mongoose.connection;
 db.on('connection', () => console.log("Successfully connected"));

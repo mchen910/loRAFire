@@ -2,15 +2,7 @@ import React, {useEffect, useState} from 'react';
 import {GoogleMap, Marker, useJsApiLoader} from "@react-google-maps/api";
 import moment from 'moment';
 
-/*
-https://www.digitalocean.com/community/tutorials/how-to-integrate-the-google-maps-api-into-react-applications
-*/
-
-
 const Map = (props) => {
-    /* ================================== PASSBACK OF SELECTED MARKER TO PARENT COMP ================================== */
-    const [selectedCenter, setSelectedCenter] = useState(null);
-
     /* ================================== HELPER FUNCTIONS + CUSTOMIZABLE CONSTANTS ================================== */
     const timeIntervalLockout = 180;
   

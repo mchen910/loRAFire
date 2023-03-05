@@ -9,7 +9,14 @@ import Map from "./components/Map";
 
 function Home() {
 
+    /* ================================== PASSBACK OF SELECTED MARKER TO PARENT COMP ================================== */
+    
+    const [timelineData, setTimelineData] = useState([]);
+    const [retrieved, setRetrieved] = useState();
+    const [gateData, setGateData] = useState([]);
     const [nodeData, setNodeData] = useState([]);
+    const [latestNodeInfo, setLatestNodeInfo] = useState({});
+
     useEffect(() => {
         fetch("http://localhost:5000/api/nodes").then(
           response => response.json()
@@ -18,7 +25,7 @@ function Home() {
         )
       }, []);
 
-    const [gateData, setGateData] = useState([]);
+    
     useEffect(() => {
         fetch("http://localhost:5000/api/gateways").then(
             response => response.json()
@@ -27,25 +34,33 @@ function Home() {
           )
     }, [])
 
-    const [retrievedTimeStamps, setRetrievedTimeStamps] = useState([]);
-
-
-    let totalData = gateData.concat(nodeData);
-
-    const [retrieved, setRetrieved] = useState();
     
+
+    const [retrievedTimeStamps, setRetrievedTimeStamps] = useState([]);
+    fetch("http://localhost:5000/api/history/").then(
+        response => response.json()
+    ).then(
+        data => setRetrievedTimeStamps(data)
+    )
+
+    const totalData = gateData.concat(nodeData);
+
     const handleCallback = (childData) =>{
         setRetrieved(childData);
-        console.log(retrieved._id);
-        fetch("http://localhost:5000/api/history/" + String(retrieved._id)).then(
-            response => response.json()
-        ).then(
-            data => setRetrievedTimeStamps(data)
-        )
-
-        console.log(JSON.stringify(retrievedTimeStamps));
+        
+        let t = [];
+    
+        /*Object.entries(retrievedTimeStamps).forEach((entry) => {
+            const [key, value] = entry;
+            console.log(`${key} : ${JSON.stringify(value)}`);
+            if (key == childData._id)
+        })*/
+        
+        setLatestNodeInfo(retrievedTimeStamps[childData._id]);
+        setTimelineData(t);
     }
 
+    /* ================================== RENDER OF MAIN HOME FRAME ================================== */
     return totalData.length ? (
         <>
             <div className="application">
@@ -57,29 +72,39 @@ function Home() {
             <View style={styles.topContainer}>
                 <View style={styles.leftSquare}>
                     {
-                        (retrieved != null) ? (
-                        <div>
-                            <div style={styles.title}>
-                                <h2>{((retrieved.gateway == true) ? "Gateway-" : "Node-") + retrieved._id }</h2>
-                            </div>
-                            <div style={styles.subInfo}>
-                                <ul>
-                                    <li>
-                                        <h4>{"Location: (" + (retrieved.location.longitude).toFixed(2) + ", " + (retrieved.location.latitude).toFixed(2) + ")"}</h4>
-                                    </li>
-                                </ul>
-                            </div>
-                        </div>
-                        ) : (
-                            <div style={styles.subInfo}>
-                                <br /> 
-                                <ul>
-                                    <li>
-                                        <h4>Select node. </h4>
-                                    </li>
-                                </ul>
-                            </div>
-                        )
+                        (() => {
+                            if (retrieved != null) {
+                                if (retrieved.gateway == false && latestNodeInfo != null) {
+                                    return (<div>
+                                        <div style={styles.title}>
+                                            <h2>{("Node-") + retrieved._id }</h2>
+                                        </div>
+                                        <div style={styles.subInfo}>
+                                            <ul>
+                                                <li>{"Location: (" + (retrieved.location.longitude).toFixed(2) + ", " + (retrieved.location.latitude).toFixed(2) + ")"}</li>
+                                                <li>{"Temp: " + (latestNodeInfo.temp).toFixed(2)}</li>
+                                                <li>{"Humidity: " + (latestNodeInfo.humidity).toFixed(2)}</li>
+                                                <li>{"Smoke Level: " + (latestNodeInfo.smokeLevel).toFixed(2)}</li>
+                                                <li>{"Updated At: " + moment(new Date(retrieved.lastPing)).format('MMMM Do YYYY, h:mm:ss a')}</li>
+                                            </ul>
+                                        </div>
+                                    </div>)
+                                } else if (retrieved.gateway == true) {
+                                    return (<div>
+                                        <div style={styles.title}>
+                                            <h2>{("Gateway-") + retrieved._id }</h2>
+                                        </div>
+                                        <div style={styles.subInfo}>
+                                            <ul>
+                                                <li>{"Location: (" + (retrieved.location.longitude).toFixed(2) + ", " + (retrieved.location.latitude).toFixed(2) + ")"}</li>
+                                                <li>{"Updated At: " + moment(new Date(retrieved.lastPing)).format('MMMM Do YYYY, h:mm:ss a')}</li>
+                                            </ul>
+                                        </div>
+                                    </div>)
+                                }
+                            }
+                        })()
+                        
                     }
                 </View>
                 <View style={styles.rightSquare}> 
