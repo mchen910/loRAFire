@@ -113,6 +113,7 @@ const genGateways = () => {
             gateway: true,
 		};
 		console.log(`(${o.location.longitude}, ${o.location.latitude})`);
+        
         list.push(cb => { 
             const g = new Node(o);
             g.save(e => e ? crash(e) : cb());
@@ -164,7 +165,29 @@ const genHistory = () => {
             };
             list.push( cb => {
                 const h = new History(o);
-                h.save(e => e ? crash(e) : cb());
+                h.save().then(res => {
+                    if (j == 0) {
+                        // set "latestPacketID" & "lastPing"
+                        console.log(res);
+                        Node.findByIdAndUpdate(
+                            nodeIDs[i],
+                            {
+                                lastPing: res.time,
+                                latestPacketID: res._id,
+                            },
+                            {},
+                            (err, res) => {
+                                if (err) {
+                                    console.error(`cannot find node '${id}' to update.`);
+                                    return next(err);
+                                }
+
+                            }
+                        );
+                    }
+                    // Callback to continue
+                    cb();
+                }).catch(err => crash(err));
             });
 		}
 	}

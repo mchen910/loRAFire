@@ -5,6 +5,8 @@ const nodeController = require('../controllers/node');
 const historyController = require('../controllers/history');
 const netController = require('../controllers/net');
 
+const Analyzer = require("../analyzer/analyzer");
+
 /* ## Details on each route can be found in the function headers in their controller files ## */
 
 /* ================ LoRaNet Routes ================== */
@@ -24,5 +26,11 @@ router.get("/gateways", nodeController.get_gateways);       // Returns all gatew
 router.get("/history/", historyController.get_all);         // Returns an object where 'obj[id] = history'. A cutoff time can be queried 
 router.get("/history/:id", historyController.get_by_node);  // Returns the history of a node given a time interval
 
+/* ================ Dev/Test Routes ================== */
+router.get("/analyze/:id", (req, res, next) => {
+    const id = req.params.id;
+    Analyzer.process(id);
+    res.status(201);
+});
 
 module.exports = router;

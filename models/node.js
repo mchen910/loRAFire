@@ -10,8 +10,14 @@ const NodeSchema = new Schema({
         longitude: Number,
     },
     lastPing: { type: Date, default: Date.now },
-    adjacencies: [{type: Number}],
-    gateway: Boolean
+    latestPacketID: Types.ObjectId,
+    adjacencies: [{ type: Number }],
+    gateway: Boolean,
+
+    analysis: {
+        riskLvl: Number,
+        dummy: Number
+    }
 },
     { versionKey: false }
 );
