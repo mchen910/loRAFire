@@ -2,10 +2,12 @@ import React, { useEffect, useState } from 'react';
 import {StyleSheet, View} from 'react-native';
 import {Helmet} from 'react-helmet';
 import moment from 'moment';
-import HorizontalTimeline from 'react-horizontal-timeline';
 import Dropdown from 'react-bootstrap/Dropdown';
 import DropdownButton from 'react-bootstrap/DropdownButton';
+import {disableBodyScroll, enableBodyScroll} from 'body-scroll-lock';
+
 import Map from "./components/Map";
+import Graph from "./components/Graph";
 
 function Home() {
 
@@ -17,7 +19,7 @@ function Home() {
     const [nodeData, setNodeData] = useState([]);
     const [latestNodeInfo, setLatestNodeInfo] = useState({});
     const [retrievedTimeStamps, setRetrievedTimeStamps] = useState([]);
-    const [value, setValue] = useState('');
+    const [value, setValue] = useState();
 
     useEffect(() => {
         fetch("http://localhost:5000/api/nodes").then(
@@ -72,6 +74,8 @@ function Home() {
         );
         setLatestNodeInfo(retrievedTimeStamps[childData._id]);
     }
+
+    disableBodyScroll(document);
 
     /* ================================== RENDER OF MAIN HOME FRAME ================================== */
     return totalData.length ? (
@@ -130,26 +134,25 @@ function Home() {
                 <View style={styles.rectangle}>
                 {               
                     (() => {
-                        if (retrieved != null && !retrieved.gateway && latestNodeInfo != null)
-                        return (
-                            <>
-                                <div>
-                                    <h4 style={{textAlign:"center", color: "#e6d7d5"}}>Timeline</h4>
-                                </div>
-                                <div style={{display: 'flex',  justifyContent:'center', alignItems:'center'}}>
-                                        <DropdownButton id='dropdown-variants-secondary' variant='secondary' title="Select Graphs" onSelect={handleSelect}> 
-                                            <Dropdown.Item eventKey="temp">Temperature</Dropdown.Item>
-                                            <Dropdown.Item eventKey="humidity">Humidity</Dropdown.Item>
-                                            <Dropdown.Item eventKey="smokeLevel">Smoke Level</Dropdown.Item>
-                                        </DropdownButton>
-                                </div>
-                                <div>
-                                    <p style={styles.subInfo}>
-                                        I selected {value} on node {retrieved._id}
-                                    </p>
-                                </div>
-                            </>
-                        )
+                        if (retrieved != null && !retrieved.gateway && latestNodeInfo != null) {
+                            return (
+                                <>
+                                    <div>
+                                        <h4 style={{textAlign:"center", color: "#e6d7d5"}}>{(value != null) ? ("Graph: " + value) : "Graph"}</h4>
+                                    </div>
+                                    <div style={{display: 'flex',  justifyContent:'center', alignItems:'center'}}>
+                                            <DropdownButton id='dropdown-variants-secondary' variant='secondary' title="Select Graph" onSelect={handleSelect}> 
+                                                <Dropdown.Item eventKey="temp">Temperature</Dropdown.Item>
+                                                <Dropdown.Item eventKey="humidity">Humidity</Dropdown.Item>
+                                                <Dropdown.Item eventKey="smokeLevel">Smoke Level</Dropdown.Item>
+                                            </DropdownButton>
+                                    </div>
+                                    <div>
+                                        <Graph value={value} nodeID={retrieved._id} offline={calcOffline(retrieved.lastPing)}/>
+                                    </div>
+                                </>
+                            )
+                        } 
                     })()
                  }
                 </View>

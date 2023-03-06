@@ -10,6 +10,7 @@ const Map = (props) => {
       minZoom: 2.0,
       maxZoom: 18.0,
       disableDefaultUI: true,
+      gestureHandling: 'greedy'
     }
 
     const { isLoaded } = useJsApiLoader({
