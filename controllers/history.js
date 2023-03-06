@@ -1,7 +1,8 @@
 var { param, query, validationResult } = require('express-validator');
 
-var Node = require('../models/node');
-var History = require('../models/history');
+const Node = require('../models/node');
+const History = require('../models/history');
+const Analyzer = require('../analyzer/analyzer');
 
 // ======= Routes ======
 // GET <nodeID> <start (def=now-1week)> <end (def=now)>: Gets the histories in the specified interval of the given node
@@ -112,16 +113,6 @@ exports.put = (id, time, temp, humidity) => {
         return;
     }
 
-    // Set last ping
-    Node.findByIdAndUpdate(
-        id,
-        {lastPing: time},
-        {},
-        (err, res) => {
-            if (err) 
-                console.error(`cannot find node '${id}' to update last ping`);
-        }
-    )
     // PUT history
     var history = new History({
         srcID: id,
@@ -129,8 +120,26 @@ exports.put = (id, time, temp, humidity) => {
         humidity: humidity,
     });
 
-    history.save(err => {
-        if (err) 
-            return next(err);
-    });
+    // Save
+    history.save().then(res => {
+        // Set last ping
+        Node.findByIdAndUpdate(
+            id,
+            {
+                lastPing: time,
+                latestPacketId: res._id,
+            },
+            {},
+            (err, res) => {
+                if (err) {
+                    console.error(`cannot find node '${id}' to update.`);
+                    return next(err);
+                }
+                // Call analyzer
+                Analyzer.process(id);
+            }
+        )
+    }).catch(err => next(err));
+
+    
 }
