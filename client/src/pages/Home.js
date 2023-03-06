@@ -2,9 +2,10 @@ import React, { useEffect, useState } from 'react';
 import {StyleSheet, View} from 'react-native';
 import {Helmet} from 'react-helmet';
 import moment from 'moment';
-
+import HorizontalTimeline from 'react-horizontal-timeline';
+import Dropdown from 'react-bootstrap/Dropdown';
+import DropdownButton from 'react-bootstrap/DropdownButton';
 import Map from "./components/Map";
-import Timeline from "./components/Timeline";
 
 function Home() {
 
@@ -15,7 +16,8 @@ function Home() {
     const [gateData, setGateData] = useState([]);
     const [nodeData, setNodeData] = useState([]);
     const [latestNodeInfo, setLatestNodeInfo] = useState({});
-
+    const [retrievedTimeStamps, setRetrievedTimeStamps] = useState([]);
+    const [value, setValue] = useState('');
 
     useEffect(() => {
         fetch("http://localhost:5000/api/nodes").then(
@@ -43,12 +45,19 @@ function Home() {
         return minutes > timeIntervalLockout;
     }
 
-    const [retrievedTimeStamps, setRetrievedTimeStamps] = useState([]);
-    fetch("http://localhost:5000/api/history/").then(
-        response => response.json()
-    ).then(
-        data => setRetrievedTimeStamps(data)
-    )
+    const handleSelect = (e) => {
+        console.log(e);
+        setValue(e);
+    }
+
+
+    useEffect(() => {
+        fetch("http://localhost:5000/api/history/").then(
+            response => response.json()
+        ).then(
+            data => setRetrievedTimeStamps(data)
+        )
+    }, []);
 
     const totalData = gateData.concat(nodeData);
 
@@ -61,10 +70,7 @@ function Home() {
         ).then(
             data => setTimelineData(data)
         );
-        //console.log(timelineData.results);
-
         setLatestNodeInfo(retrievedTimeStamps[childData._id]);
-        //setTimelineData(t);
     }
 
     /* ================================== RENDER OF MAIN HOME FRAME ================================== */
@@ -122,8 +128,33 @@ function Home() {
 
             <View style={styles.bottomContainer}>
                 <View style={styles.rectangle}>
-
+                {               
+                    (() => {
+                        if (retrieved != null && !retrieved.gateway && latestNodeInfo != null)
+                        return (
+                            <>
+                                <div>
+                                    <h4 style={{textAlign:"center", color: "#e6d7d5"}}>Timeline</h4>
+                                </div>
+                                <div style={{display: 'flex',  justifyContent:'center', alignItems:'center'}}>
+                                        <DropdownButton id='dropdown-variants-secondary' variant='secondary' title="Select Graphs" onSelect={handleSelect}> 
+                                            <Dropdown.Item eventKey="temp">Temperature</Dropdown.Item>
+                                            <Dropdown.Item eventKey="humidity">Humidity</Dropdown.Item>
+                                            <Dropdown.Item eventKey="smokeLevel">Smoke Level</Dropdown.Item>
+                                        </DropdownButton>
+                                </div>
+                                <div>
+                                    <p style={styles.subInfo}>
+                                        I selected {value} on node {retrieved._id}
+                                    </p>
+                                </div>
+                            </>
+                        )
+                    })()
+                 }
                 </View>
+
+
             </View>
             
         </>
@@ -195,6 +226,6 @@ const styles = StyleSheet.create({
     subInfo: {
         color: "#e6d7d5"
     }
-  });
+    });
 
 export default Home;
