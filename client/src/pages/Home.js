@@ -1,13 +1,15 @@
 import React, { useEffect, useState } from 'react';
-import {StyleSheet, View} from 'react-native';
-import {Helmet} from 'react-helmet';
+import { StyleSheet, View } from 'react-native';
+import { Helmet } from 'react-helmet';
 import moment from 'moment';
 import Dropdown from 'react-bootstrap/Dropdown';
 import DropdownButton from 'react-bootstrap/DropdownButton';
-import {disableBodyScroll, enableBodyScroll} from 'body-scroll-lock';
+import { disableBodyScroll } from 'body-scroll-lock';
 
 import Map from "./components/Map";
 import Graph from "./components/Graph";
+
+const PORT = 8000
 
 function Home() {
 
@@ -22,7 +24,7 @@ function Home() {
     const [value, setValue] = useState();
 
     useEffect(() => {
-        fetch("http://localhost:5000/api/nodes").then(
+        fetch(`http://localhost:${PORT}/api/nodes`).then(
           response => response.json()
         ).then(
           data => setNodeData(data)
@@ -31,7 +33,7 @@ function Home() {
 
     
     useEffect(() => {
-        fetch("http://localhost:5000/api/gateways").then(
+        fetch(`http://localhost:${PORT}/api/gateways`).then(
             response => response.json()
           ).then(
             data => setGateData(data)
@@ -54,7 +56,7 @@ function Home() {
 
 
     useEffect(() => {
-        fetch("http://localhost:5000/api/history/").then(
+        fetch(`http://localhost:${PORT}/api/history/`).then(
             response => response.json()
         ).then(
             data => setRetrievedTimeStamps(data)
@@ -67,7 +69,7 @@ function Home() {
         setRetrieved(childData);
         console.log(timelineData);
 
-        fetch(`http://localhost:5000/api/history/${childData._id}`).then(
+        fetch(`http://localhost:${PORT}/api/history/${childData._id}`).then(
             (response) => response.json() 
         ).then(
             data => setTimelineData(data)
@@ -87,79 +89,95 @@ function Home() {
             </div>
 
             <View style={styles.topContainer}>
-                <View style={styles.leftSquare}>
-                    {
-                        (() => {
-                            if (retrieved != null) {
-                                if (retrieved.gateway == false && latestNodeInfo != null) {
-                                    return (<div>
-                                        <div style={(calcOffline(retrieved.lastPing)) ? styles.offlineTitle : styles.onlineTitle}>
-                                            <h2>{("Node-") + retrieved._id }</h2>
+                {
+                    (() => {
+                        if (retrieved === undefined) {
+                            return (
+                                <View style={styles.rightSquareOnly}> 
+                                    <Map data={totalData} parentCallback={handleCallback} lat={0} lon={0}/>
+                                </View>
+                            );
+                        }
+                        
+                        if (retrieved.gateway !== undefined && latestNodeInfo != null) {
+                            return (
+                                <>
+                                    <View style={styles.leftSquare}>
+                                        <div>
+                                            <div style={(calcOffline(retrieved.lastPing)) ? styles.offlineTitle : styles.onlineTitle}>
+                                                <h2>{("Node-") + retrieved._id }</h2>
+                                            </div>
+                                            <div style={styles.subInfo}>
+                                                <ul>
+                                                    <li>{"Location: (" + (retrieved.location.longitude).toFixed(2) + ", " + (retrieved.location.latitude).toFixed(2) + ")"}</li>
+                                                    <li>{"Temp: " + (latestNodeInfo.temp).toFixed(2) + "˚F"}</li>
+                                                    <li>{"Humidity: " + (latestNodeInfo.humidity).toFixed(2)}</li>
+                                                    <li>{"Smoke Level: " + (latestNodeInfo.smokeLevel).toFixed(2)}</li>
+                                                    <li>{"Last Updated At: " + moment(new Date(retrieved.lastPing)).format('MMMM Do YYYY, h:mm:ss a')}</li>
+                                                </ul>
+                                            </div>
                                         </div>
-                                        <div style={styles.subInfo}>
-                                            <ul>
-                                                <li>{"Location: (" + (retrieved.location.longitude).toFixed(2) + ", " + (retrieved.location.latitude).toFixed(2) + ")"}</li>
-                                                <li>{"Temp: " + (latestNodeInfo.temp).toFixed(2)}</li>
-                                                <li>{"Humidity: " + (latestNodeInfo.humidity).toFixed(2)}</li>
-                                                <li>{"Smoke Level: " + (latestNodeInfo.smokeLevel).toFixed(2)}</li>
-                                                <li>{"Updated At: " + moment(new Date(retrieved.lastPing)).format('MMMM Do YYYY, h:mm:ss a')}</li>
-                                            </ul>
-                                        </div>
-                                    </div>)
-                                } else {
-                                    return (<div>
+                                    </View>
+
+                                    <View style={styles.rightSquare}>
+                                        <Map data={totalData} parentCallback={handleCallback} lat={retrieved.location.longitude} lon={retrieved.location.latitude}/>
+                                    </View>
+                                </>
+                            );
+                        }
+
+                        return (
+                            <>
+                                <View style={styles.leftSquareNoTimeline}>
+                                    <div>
                                         <div style={(calcOffline(retrieved.lastPing)) ? styles.offlineTitle : styles.onlineTitle}>
                                             <h2>{("Gateway-") + retrieved._id }</h2>
                                         </div>
                                         <div style={styles.subInfo}>
                                             <ul>
                                                 <li>{"Location: (" + (retrieved.location.longitude).toFixed(2) + ", " + (retrieved.location.latitude).toFixed(2) + ")"}</li>
-                                                <li>{"Updated At: " + moment(new Date(retrieved.lastPing)).format('MMMM Do YYYY, h:mm:ss a')}</li>
+                                                <li>{"Last Updated At: " + moment(new Date(retrieved.lastPing)).format('MMMM Do YYYY, h:mm:ss a')}</li>
                                             </ul>
                                         </div>
-                                    </div>)
-                                }
-                            }
-                        })()
-                        
-                    }
-                </View>
-
-                <View style={styles.rightSquare}> 
-                    <Map data = {totalData} parentCallback = {handleCallback}/>
-                </View>
+                                    </div>
+                                </View>
+                                <View style={styles.rightSquareNoTimeline}>
+                                    <Map data={totalData} parentCallback={handleCallback} lat={retrieved.location.longitude} lon={retrieved.location.latitude}/>
+                                </View>
+                            </>
+                        );
+                        }
+                    )()
+                }
             </View>
 
-            <View style={styles.bottomContainer}>
-                <View style={styles.rectangle}>
-                {               
-                    (() => {
-                        if (retrieved != null && !retrieved.gateway && latestNodeInfo != null) {
-                            return (
-                                <>
+            {
+                (() => {
+                    if (retrieved !== undefined && retrieved.gateway !== undefined && latestNodeInfo != null) {
+                        return (
+                            <View style={styles.bottomContainer}>
+                                <View style={styles.rectangle}>
                                     <div>
-                                        <h4 style={{textAlign:"center", color: "#e6d7d5"}}>{(value != null) ? ("Graph: " + value) : "Graph"}</h4>
+                                        <h4 style={{ textAlign: "center", color: "#e6d7d5" }}>{(value != null) ? ("Graph: " + value) : "Graph"}</h4>
                                     </div>
-                                    <div style={{display: 'flex',  justifyContent:'center', alignItems:'center'}}>
-                                            <DropdownButton id='dropdown-variants-secondary' variant='secondary' title="Select Graph" onSelect={handleSelect}> 
-                                                <Dropdown.Item eventKey="temp">Temperature</Dropdown.Item>
-                                                <Dropdown.Item eventKey="humidity">Humidity</Dropdown.Item>
-                                                <Dropdown.Item eventKey="smokeLevel">Smoke Level</Dropdown.Item>
-                                            </DropdownButton>
+                                    <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                                        <DropdownButton id='dropdown-variants-secondary' variant='secondary' title="Select Graph" onSelect={handleSelect}>
+                                            <Dropdown.Item eventKey="temp">Temperature</Dropdown.Item>
+                                            <Dropdown.Item eventKey="humidity">Humidity</Dropdown.Item>
+                                            <Dropdown.Item eventKey="smokeLevel">Smoke Level</Dropdown.Item>
+                                        </DropdownButton>
                                     </div>
                                     <div>
-                                        <Graph value={value} nodeID={retrieved._id} offline={calcOffline(retrieved.lastPing)}/>
+                                        <Graph value={value} nodeID={retrieved._id} offline={calcOffline(retrieved.lastPing)} />
                                     </div>
-                                </>
-                            )
-                        } 
-                    })()
-                 }
-                </View>
+                                </View>
+                            </View>
+                        )
+                    } 
 
-
-            </View>
-            
+                    return null;
+                })()
+            }
         </>
     ) : (
         <div>Loading data...</div>
@@ -174,7 +192,7 @@ const styles = StyleSheet.create({
       flex: 1,
       alignItems: "stretch",
       justifyContent: "center",
-      flexDirection: "row"
+      flexDirection: "row",
     },
     bottomContainer: {
         flex: 1,
@@ -191,7 +209,16 @@ const styles = StyleSheet.create({
         marginTop: "0.5%",
         borderRadius: 10,
         display: "inline-block",
-        
+    },
+    leftSquareNoTimeline: {
+        backgroundColor: "#292b26",
+        width: "39%",
+        height: "100vh",
+        marginRight: "0.5%",
+        marginLeft: "0.5%",
+        marginTop: "0.5%",
+        borderRadius: 10,
+        display: "inline-block",
     },
     rightSquare: {
         backgroundColor: "#292b26",
@@ -201,7 +228,27 @@ const styles = StyleSheet.create({
         marginRight: "0.5%",
         marginTop: "0.5%",
         borderRadius: 10,
-        display: "inline-block"
+        display: "inline-block",
+    },
+    rightSquareOnly: {
+        backgroundColor: "#292b26",
+        marginLeft: "0.5%",
+        marginRight: "0.5%",
+        marginTop: "0.5%",
+        borderRadius: 10,
+        display: "inline-block",
+        width: "100%",
+        height: "100vh"
+    },
+    rightSquareNoTimeline: {
+        backgroundColor: "#292b26",
+        width: "59%",
+        height: "100vh",
+        marginLeft: "0.5%",
+        marginRight: "0.5%",
+        marginTop: "0.5%",
+        borderRadius: 10,
+        display: "inline-block",
     },
     rectangle: {
         backgroundColor: "#292b26",
@@ -216,11 +263,13 @@ const styles = StyleSheet.create({
     },
     onlineTitle: {
         //textAlign: "center",
+        marginTop: "10px",
         marginLeft: "10px",
         color: "#32a852"
     },
     offlineTitle: {
         marginLeft: "10px",
+        marginTop: "10px",
         color: "#a83232"
     },
     rootDiv: {
