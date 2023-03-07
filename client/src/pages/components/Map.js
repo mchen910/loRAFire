@@ -18,12 +18,6 @@ const Map = (props) => {
       googleMapsApiKey: "AIzaSyA3Ow506dj9kpI7quNGe9aU9Qul0XdPSAM"
   })
 
-    const coordinates = {
-      lat: [],
-      lng: [],
-    }
-  
-
     const containerStyle = {
         height: "100%",
         width: "100%",
@@ -38,8 +32,7 @@ const Map = (props) => {
     const onLoad = React.useCallback(function callback(map) {
         map.setCenter({lat: 0, lng: 0});
         map.setZoom(2.0);
-        console.log("ZOOM", map.getZoom());
-        console.log("CENTER", map.getCenter());
+        console.log(props);
         setMap(map);
 
       //console.log(props.data);
@@ -96,7 +89,7 @@ const Map = (props) => {
     }
     
     const declareIcon = (item) => {
-      if (item.gateway == true) {
+      if (item.gateway) {
         if (calcOffline(item.lastPing)) {
           return offlineGateImage;
         } else {
@@ -110,18 +103,16 @@ const Map = (props) => {
           return onlineNodeImage;
         }
       }
-
-      return null;
     }
 
     /* ================================== RENDERING OF MAP COMPONENT ================================== */
     return isLoaded ? (
         <>
             <GoogleMap
-            mapContainerStyle={containerStyle}
-            onLoad={onLoad}
-            onUnmount={onUnmount}
-            options = {OPTIONS}
+              mapContainerStyle={containerStyle}
+              onLoad={onLoad}
+              onUnmount={onUnmount}
+              options = {OPTIONS}
             >
             {
               props.data.map((item, index) => {
@@ -141,7 +132,7 @@ const Map = (props) => {
                   )
                 }
               ) 
-          }
+            }
           </GoogleMap>
         </>
     ) : <></>

@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from 'react';
 
+const PORT = process.env.PORT;
+
 function GatePage() {
 
   const [gateData, setGateData] = useState([{}]);
   useEffect(() => {
-    fetch("http://localhost:5000/api/gateways").then(
+    fetch(`http://localhost:${PORT}/api/gateways`).then(
       response => response.json()
     ).then(
       data => setGateData(data)

@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from 'react';
 
+const PORT = process.env.PORT;
+
 function NodePage() {
 
   const [nodeData, setNodeData] = useState([{}]);
   useEffect(() => {
-    fetch("http://localhost:5000/api/nodes").then(
+    fetch(`http://localhost:${PORT}/api/nodes`).then(
       response => response.json()
     ).then(
       data => setNodeData(data)
