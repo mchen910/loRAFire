@@ -38,14 +38,14 @@ db.on('error', console.error.bind(console, 'MongoDB connection error:'));
 
 
 
-const RANGE = 0.15; // In degrees (~ 69 miles)
-const CNTR = [37.512, -121.882]; // MISSION PEAK @ CALIFORNIA
+const RANGE = 0.1; // In degrees (~ 69 miles)
+const CNTR = [39.6211, -122.8448]; // MISSION PEAK @ CALIFORNIA
 const GATEWAYS = 10;
 const NODES = 20;
 const HISTORIES = 10;
 const TIME_STEP = 30;
 const TIME_STEP_VAR = 10;
-const ADJ_DIST = 0.01;
+const ADJ_DIST = 0.005;
 
 const gatewayIDs = [];
 const nodeIDs = [];

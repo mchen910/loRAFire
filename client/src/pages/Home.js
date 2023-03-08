@@ -9,7 +9,7 @@ import { disableBodyScroll } from 'body-scroll-lock';
 import Map from "./components/Map";
 import Graph from "./components/Graph";
 
-const PORT = 8000
+const PORT = 5000;
 
 function Home() {
 
@@ -158,7 +158,8 @@ function Home() {
                             <View style={styles.bottomContainer}>
                                 <View style={styles.rectangle}>
                                     <div>
-                                        <h4 style={{ textAlign: "center", color: "#e6d7d5" }}>{(value != null) ? ("Graph: " + value) : "Graph"}</h4>
+                                        <h4 style={{ textAlign: "center", color: "#e6d7d5" }}>{(value != null) ? 
+                                            ("Graph: " + value[0].toUpperCase() + value.substring(1)) : "Graph"}</h4>
                                     </div>
                                     <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
                                         <DropdownButton id='dropdown-variants-secondary' variant='secondary' title="Select Graph" onSelect={handleSelect}>
@@ -168,7 +169,7 @@ function Home() {
                                         </DropdownButton>
                                     </div>
                                     <div>
-                                        <Graph value={value} nodeID={retrieved._id} offline={calcOffline(retrieved.lastPing)} />
+                                        <Graph value={value} nodeID={retrieved._id} offline={calcOffline(retrieved.lastPing)} port={PORT} />
                                     </div>
                                 </View>
                             </View>
@@ -202,17 +203,19 @@ const styles = StyleSheet.create({
     },
     leftSquare: {
         backgroundColor: "#292b26",
-        width: "39%",
+        width: "29%",
         height: "50vh",
         marginRight: "0.5%",
         marginLeft: "0.5%",
         marginTop: "0.5%",
+        paddingLeft: "10px",
+        paddingTop: "10px",
         borderRadius: 10,
         display: "inline-block",
     },
     leftSquareNoTimeline: {
         backgroundColor: "#292b26",
-        width: "39%",
+        width: "29%",
         height: "100vh",
         marginRight: "0.5%",
         marginLeft: "0.5%",
@@ -222,7 +225,7 @@ const styles = StyleSheet.create({
     },
     rightSquare: {
         backgroundColor: "#292b26",
-        width: "59%",
+        width: "69%",
         height: "50vh",
         marginLeft: "0.5%",
         marginRight: "0.5%",
@@ -242,7 +245,7 @@ const styles = StyleSheet.create({
     },
     rightSquareNoTimeline: {
         backgroundColor: "#292b26",
-        width: "59%",
+        width: "69%",
         height: "100vh",
         marginLeft: "0.5%",
         marginRight: "0.5%",

@@ -1,10 +1,13 @@
+/* global google */
+
 import React, {useEffect, useState} from 'react';
-import {GoogleMap, Marker, useJsApiLoader} from "@react-google-maps/api";
+import {GoogleMap, Marker, Polyline, useJsApiLoader} from "@react-google-maps/api";
 import moment from 'moment';
 
 const Map = (props) => {
     /* ================================== HELPER FUNCTIONS + CUSTOMIZABLE CONSTANTS ================================== */
     const timeIntervalLockout = 180;
+    const [toggleNetwork, setToggleNetwork] = useState(true);
   
     const OPTIONS = {
       minZoom: 2.0,
@@ -71,17 +74,8 @@ const Map = (props) => {
     }
 
     const onlineGateImage = {
-      path: "M 2 2 H 8 V 8 H 2 L 2 2",
+      path: "M 3 3 H 9 V 9 H 3 L 3 3",
       fillColor: "green",
-      fillOpacity: 2, 
-      strokeWeight: 1,
-      rotation: 0,
-      scale: 2
-    }
-
-    const offlineGateImage = {
-      path: "M 2 2 H 8 V 8 H 2 L 2 2",
-      fillColor: "red",
       fillOpacity: 2, 
       strokeWeight: 1,
       rotation: 0,
@@ -89,18 +83,52 @@ const Map = (props) => {
     }
     
     const declareIcon = (item) => {
+      console.log("POINT TO BE RENDERED", item.location.latitude, item.location.longitude);
+
       if (item.gateway) {
         if (calcOffline(item.lastPing)) {
-          return offlineGateImage;
+          return {
+            anchor: google.maps.Point(item.location.latitude, item.location.longitude),
+            path: google.maps.SymbolPath.CIRCLE,
+            fillColor: "red",
+            fillOpacity: 2, 
+            strokeWeight: 1,
+            rotation: 0,
+            scale: 10
+          }
         } else {
-          return onlineGateImage;
+          return {
+            anchor: google.maps.Point(item.location.latitude, item.location.longitude),
+            path: google.maps.SymbolPath.CIRCLE,
+            fillColor: "green",
+            fillOpacity: 2, 
+            strokeWeight: 1,
+            rotation: 0,
+            scale: 10
+          }
         }
       } 
       else {
         if (calcOffline(item.lastPing)) {
-          return offlineNodeImage;
+          return {
+            anchor: google.maps.Point(item.location.latitude, item.location.longitude),
+            path: google.maps.SymbolPath.CIRCLE,
+            fillColor: "red",
+            fillOpacity: 2, 
+            strokeWeight: 1,
+            rotation: 0,
+            scale: 6
+          };
         } else {
-          return onlineNodeImage;
+          return {
+            anchor: google.maps.Point(item.location.latitude, item.location.longitude),
+            path: google.maps.SymbolPath.CIRCLE,
+            fillColor: "green",
+            fillOpacity: 2, 
+            strokeWeight: 1,
+            rotation: 0,
+            scale: 6
+          };
         }
       }
     }
@@ -132,6 +160,51 @@ const Map = (props) => {
                   )
                 }
               ) 
+            }
+
+            {
+            (() => {
+              let lines = [];
+              let idx = 0;
+              props.data.map((item, index) => {
+                const connections = item.adjacencies;
+
+                console.log("CONNECTIONS for node " + item._id + ": " + item.adjacencies);
+                connections.map((nodeID, sni) => {
+
+                  let startNode = null;
+                  for (let i = 0; i < props.data.length; i++) {
+                    if (props.data[i] != null && props.data[i]._id == nodeID) {
+                      startNode = props.data[i];
+                      break;
+                    }
+                  }
+
+                if (startNode != null) {
+                  const path = [
+                    {lat: item.location.latitude, lng: item.location.longitude},
+                    {lat: startNode.location.latitude, lng: startNode.location.longitude}
+                  ]
+
+                  console.log(path);
+                  lines.push(
+                    <Polyline 
+                      path={path}
+                      geodesic={true}
+                      options={{
+                        strokeColor: "#3d4452",
+                        strokeOpacity: 0.75,
+                        strokeWeight: 2,
+                      }}
+                    />
+                  )
+                }
+                })
+              });
+
+              return lines;
+            }
+            )()
             }
           </GoogleMap>
         </>
