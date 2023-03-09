@@ -38,14 +38,15 @@ db.on('error', console.error.bind(console, 'MongoDB connection error:'));
 
 
 
-const RANGE = 0.1; // In degrees (~ 69 miles)
+const RANGE = 0.3; // In degrees (~ 69 miles)
 const CNTR = [39.6211, -122.8448]; // MISSION PEAK @ CALIFORNIA
 const GATEWAYS = 10;
 const NODES = 20;
 const HISTORIES = 10;
 const TIME_STEP = 30;
 const TIME_STEP_VAR = 10;
-const ADJ_DIST = 0.005;
+const ADJ_DIST = 0.05;
+const RISK_RANGE = 1.0;
 
 const gatewayIDs = [];
 const nodeIDs = [];
@@ -70,7 +71,7 @@ const genNodes = () => {
 		const r = Math.random() * RANGE; 
 		const lon = Math.sin(a) * r;
 		const lat = Math.cos(a) * r;
-
+        const rlvl = Math.random() * RISK_RANGE;
         const id = 1000 + i+1;
         nodeIDs[i] = id;
 
@@ -81,6 +82,9 @@ const genNodes = () => {
 				latitude: CNTR[0] + lat
 			},
             gateway: false,
+            analysis: {
+                riskLvl: rlvl,
+            }
 		};
 		console.log(`(${o.location.longitude}, ${o.location.latitude})`);
 		list.push( cb => {
@@ -100,7 +104,7 @@ const genGateways = () => {
 		const r = RANGE + randRange(-3, 3) / 69; 
 		const lon = Math.sin(a) * r;
 		const lat = Math.cos(a) * r;
-
+        const rlvl = Math.random() * RISK_RANGE;
         const id = 2000 + i+1;
         gatewayIDs[i] = id;
 
@@ -111,6 +115,9 @@ const genGateways = () => {
 				latitude: CNTR[0] + lat
 			},
             gateway: true,
+            analysis: {
+                riskLvl: rlvl,
+            }
 		};
 		console.log(`(${o.location.longitude}, ${o.location.latitude})`);
         

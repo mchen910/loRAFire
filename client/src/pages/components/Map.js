@@ -1,20 +1,22 @@
 /* global google */
 
-import React, {useEffect, useState} from 'react';
-import {GoogleMap, Marker, Polyline, useJsApiLoader} from "@react-google-maps/api";
+import React, {Fragment, useEffect, useState} from 'react';
+import {GoogleMap, Marker, Polyline, useJsApiLoader, Circle} from "@react-google-maps/api";
 import moment from 'moment';
 
 const Map = (props) => {
     /* ================================== HELPER FUNCTIONS + CUSTOMIZABLE CONSTANTS ================================== */
     const timeIntervalLockout = 180;
     const [toggleNetwork, setToggleNetwork] = useState(true);
-  
+    let heatMapData = [];
     const OPTIONS = {
       minZoom: 2.0,
       maxZoom: 18.0,
       disableDefaultUI: true,
       gestureHandling: 'greedy'
     }
+
+    const THRESHOLD = props.threshold;
 
     const { isLoaded } = useJsApiLoader({
       id: 'google-map-script',
@@ -55,32 +57,6 @@ const Map = (props) => {
     }
 
     /* ================================== SVG ICONS FOR NODES AND GATEWAYS ================================== */
-    const onlineNodeImage = {
-      path: "M 4,8 a 4,4 0 1,1 8,0 a 4,4 0 1,1 -8,0",
-      fillColor: "green",
-      fillOpacity: 2, 
-      strokeWeight: 1,
-      rotation: 0,
-      scale: 2
-    }
-
-    const offlineNodeImage = {
-      path: "M 4,8 a 4,4 0 1,1 8,0 a 4,4 0 1,1 -8,0",
-      fillColor: "red",
-      fillOpacity: 2, 
-      strokeWeight: 1,
-      rotation: 0,
-      scale: 2
-    }
-
-    const onlineGateImage = {
-      path: "M 3 3 H 9 V 9 H 3 L 3 3",
-      fillColor: "green",
-      fillOpacity: 2, 
-      strokeWeight: 1,
-      rotation: 0,
-      scale: 2
-    }
     
     const declareIcon = (item) => {
       console.log("POINT TO BE RENDERED", item.location.latitude, item.location.longitude);
@@ -90,21 +66,33 @@ const Map = (props) => {
           return {
             anchor: google.maps.Point(item.location.latitude, item.location.longitude),
             path: google.maps.SymbolPath.CIRCLE,
-            fillColor: "red",
+            fillColor: "gray",
             fillOpacity: 2, 
             strokeWeight: 1,
             rotation: 0,
             scale: 10
           }
         } else {
-          return {
-            anchor: google.maps.Point(item.location.latitude, item.location.longitude),
-            path: google.maps.SymbolPath.CIRCLE,
-            fillColor: "green",
-            fillOpacity: 2, 
-            strokeWeight: 1,
-            rotation: 0,
-            scale: 10
+          if (item.analysis.riskLvl > THRESHOLD) {
+            return {
+              anchor: google.maps.Point(item.location.latitude, item.location.longitude),
+              path: google.maps.SymbolPath.CIRCLE,
+              fillColor: "red",
+              fillOpacity: 2, 
+              strokeWeight: 1,
+              rotation: 0,
+              scale: 10
+            }
+          } else {
+            return {
+              anchor: google.maps.Point(item.location.latitude, item.location.longitude),
+              path: google.maps.SymbolPath.CIRCLE,
+              fillColor: "green",
+              fillOpacity: 2, 
+              strokeWeight: 1,
+              rotation: 0,
+              scale: 10
+            }
           }
         }
       } 
@@ -113,22 +101,34 @@ const Map = (props) => {
           return {
             anchor: google.maps.Point(item.location.latitude, item.location.longitude),
             path: google.maps.SymbolPath.CIRCLE,
-            fillColor: "red",
+            fillColor: "gray",
             fillOpacity: 2, 
             strokeWeight: 1,
             rotation: 0,
             scale: 6
           };
         } else {
-          return {
-            anchor: google.maps.Point(item.location.latitude, item.location.longitude),
-            path: google.maps.SymbolPath.CIRCLE,
-            fillColor: "green",
-            fillOpacity: 2, 
-            strokeWeight: 1,
-            rotation: 0,
-            scale: 6
-          };
+          if (item.analysis.riskLvl > THRESHOLD) {
+            return {
+              anchor: google.maps.Point(item.location.latitude, item.location.longitude),
+              path: google.maps.SymbolPath.CIRCLE,
+              fillColor: "red",
+              fillOpacity: 2, 
+              strokeWeight: 1,
+              rotation: 0,
+              scale: 6
+            };            
+          } else {
+            return {
+              anchor: google.maps.Point(item.location.latitude, item.location.longitude),
+              path: google.maps.SymbolPath.CIRCLE,
+              fillColor: "green",
+              fillOpacity: 2, 
+              strokeWeight: 1,
+              rotation: 0,
+              scale: 6
+            };
+          }
         }
       }
     }
@@ -144,20 +144,56 @@ const Map = (props) => {
             >
             {
               props.data.map((item, index) => {
-                //console.log(index + " " + item.location.latitude + ", " + item.location.longitude + ", " + item.gateway + ", " + calcOffline(item.lastPing));
-                return (
-                    <Marker key={index}
-                    position={{
-                        lat:item.location.latitude,
-                        lng:item.location.longitude
+                const risk = item.analysis.riskLvl;
+                if (item != undefined && !calcOffline(item.lastPing)) {
+                  return (                     
+                    <Circle
+                      key = {index}
+                      center={{
+                        lat: item.location.latitude,
+                        lng: item.location.longitude
                       }}
-                    icon={declareIcon(item)}
-                    
-                    onClick = {() => {
-                      props.parentCallback(item);
-                    }}
+                      radius={risk*10000}
+                      options= {
+                        {
+                          strokeColor: '#FF0000',
+                          strokeOpacity: 0.2,
+                          strokeWeight: 2,
+                          fillColor: '#FF0000',
+                          fillOpacity: risk/4,
+                          clickable: false,
+                          draggable: false,
+                          editable: false,
+                          visible: true,
+                          radius: risk*12500,
+                          zIndex: 1
+                        }
+                      }
                     />
                   )
+                }
+              })
+            }
+
+            {
+              props.data.map((item, index) => {
+                console.log(item);
+                if (item != undefined) {
+                  return (
+                        <Marker
+                        item = {index}
+                        position={{
+                            lat:item.location.latitude,
+                            lng:item.location.longitude
+                          }}
+                        icon={declareIcon(item)}
+                        
+                        onClick = {() => {
+                          props.parentCallback(item);
+                        }}
+                        />
+                    )
+                  }
                 }
               ) 
             }
@@ -166,6 +202,13 @@ const Map = (props) => {
             (() => {
               let lines = [];
               let idx = 0;
+
+              const lineSymbol = {
+                path: "M 0,-1 0,1",
+                strokeOpacity: 1,
+                scale: 4,
+              };
+
               props.data.map((item, index) => {
                 const connections = item.adjacencies;
 
@@ -187,7 +230,8 @@ const Map = (props) => {
                   ]
 
                   console.log(path);
-                  lines.push(
+                  if (!calcOffline(item) && !calcOffline(startNode)) {
+                    lines.push(
                     <Polyline 
                       path={path}
                       geodesic={true}
@@ -198,6 +242,7 @@ const Map = (props) => {
                       }}
                     />
                   )
+                }
                 }
                 })
               });

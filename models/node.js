@@ -16,7 +16,6 @@ const NodeSchema = new Schema({
 
     analysis: {
         riskLvl: Number,
-        dummy: Number
     }
 },
     { versionKey: false }

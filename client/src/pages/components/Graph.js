@@ -44,7 +44,8 @@ function Graph(props) {
     };
 
     if (node != null) {
-        const color = props.offline ? "#a83232": "#32a852";
+        console.log("RISK: ", props.risk);
+        const color = props.offline ? "#808080": ((props.risk == true) ? "#ff0000" : "#32a852");
         if (props.value != undefined) {
             return (
                 <div style={{margin: "auto 0"}}>

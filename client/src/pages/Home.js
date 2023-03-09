@@ -8,8 +8,10 @@ import { disableBodyScroll } from 'body-scroll-lock';
 
 import Map from "./components/Map";
 import Graph from "./components/Graph";
+import RiskAlert from "./components/Alert";
 
 const PORT = 5000;
+const threshold = 0.8;
 
 function Home() {
 
@@ -22,6 +24,7 @@ function Home() {
     const [latestNodeInfo, setLatestNodeInfo] = useState({});
     const [retrievedTimeStamps, setRetrievedTimeStamps] = useState([]);
     const [value, setValue] = useState();
+    const [showAlert, setShowAlert] = useState(false);
 
     useEffect(() => {
         fetch(`http://localhost:${PORT}/api/nodes`).then(
@@ -77,6 +80,11 @@ function Home() {
         setLatestNodeInfo(retrievedTimeStamps[childData._id]);
     }
 
+    let riskNodes = [];
+    for (let i = 0; i < totalData; i++) {
+        if (totalData[i].analysis.riskLvl > threshold) riskNodes.push(totalData[i]);
+    }
+
     disableBodyScroll(document);
 
     /* ================================== RENDER OF MAIN HOME FRAME ================================== */
@@ -94,7 +102,7 @@ function Home() {
                         if (retrieved === undefined) {
                             return (
                                 <View style={styles.rightSquareOnly}> 
-                                    <Map data={totalData} parentCallback={handleCallback} lat={0} lon={0}/>
+                                    <Map data={totalData} parentCallback={handleCallback} lat={0} lon={0} threshold={threshold}/>
                                 </View>
                             );
                         }
@@ -104,7 +112,7 @@ function Home() {
                                 <>
                                     <View style={styles.leftSquare}>
                                         <div>
-                                            <div style={(calcOffline(retrieved.lastPing)) ? styles.offlineTitle : styles.onlineTitle}>
+                                            <div style={(calcOffline(retrieved.lastPing)) ? styles.offlineTitle : ((retrieved.analysis.riskLvl > threshold) ? styles.riskTitle : styles.onlineTitle)}>
                                                 <h2>{("Node-") + retrieved._id }</h2>
                                             </div>
                                             <div style={styles.subInfo}>
@@ -114,13 +122,15 @@ function Home() {
                                                     <li>{"Humidity: " + (latestNodeInfo.humidity).toFixed(2)}</li>
                                                     <li>{"Smoke Level: " + (latestNodeInfo.smokeLevel).toFixed(2)}</li>
                                                     <li>{"Last Updated At: " + moment(new Date(retrieved.lastPing)).format('MMMM Do YYYY, h:mm:ss a')}</li>
+                                                    <li>{"Risk Level: " + (retrieved.analysis.riskLvl).toFixed(3)}</li>
+
                                                 </ul>
                                             </div>
                                         </div>
                                     </View>
 
                                     <View style={styles.rightSquare}>
-                                        <Map data={totalData} parentCallback={handleCallback} lat={retrieved.location.longitude} lon={retrieved.location.latitude}/>
+                                        <Map data={totalData} parentCallback={handleCallback} lat={retrieved.location.longitude} lon={retrieved.location.latitude} threshold={threshold} />
                                     </View>
                                 </>
                             );
@@ -130,19 +140,20 @@ function Home() {
                             <>
                                 <View style={styles.leftSquareNoTimeline}>
                                     <div>
-                                        <div style={(calcOffline(retrieved.lastPing)) ? styles.offlineTitle : styles.onlineTitle}>
+                                        <div style={(calcOffline(retrieved.lastPing)) ? styles.offlineTitle : ((retrieved.analysis.riskLvl > threshold) ? styles.riskTitle : styles.onlineTitle)}>
                                             <h2>{("Gateway-") + retrieved._id }</h2>
                                         </div>
                                         <div style={styles.subInfo}>
                                             <ul>
                                                 <li>{"Location: (" + (retrieved.location.longitude).toFixed(2) + ", " + (retrieved.location.latitude).toFixed(2) + ")"}</li>
                                                 <li>{"Last Updated At: " + moment(new Date(retrieved.lastPing)).format('MMMM Do YYYY, h:mm:ss a')}</li>
+                                                <li>{"Risk Level: " + (retrieved.analysis.riskLvl).toFixed(3)}</li>
                                             </ul>
                                         </div>
                                     </div>
                                 </View>
                                 <View style={styles.rightSquareNoTimeline}>
-                                    <Map data={totalData} parentCallback={handleCallback} lat={retrieved.location.longitude} lon={retrieved.location.latitude}/>
+                                    <Map data={totalData} parentCallback={handleCallback} lat={retrieved.location.longitude} lon={retrieved.location.latitude} threshold={threshold}/>
                                 </View>
                             </>
                         );
@@ -169,7 +180,7 @@ function Home() {
                                         </DropdownButton>
                                     </div>
                                     <div>
-                                        <Graph value={value} nodeID={retrieved._id} offline={calcOffline(retrieved.lastPing)} port={PORT} />
+                                        <Graph value={value} nodeID={retrieved._id} offline={calcOffline(retrieved.lastPing)} risk={retrieved.analysis.riskLvl > threshold} port={PORT}/>
                                     </div>
                                 </View>
                             </View>
@@ -273,7 +284,12 @@ const styles = StyleSheet.create({
     offlineTitle: {
         marginLeft: "10px",
         marginTop: "10px",
-        color: "#a83232"
+        color: "#808080"
+    },
+    riskTitle: {
+        marginLeft: "10px",
+        marginTop: "10px",
+        color: "#ff0000"
     },
     rootDiv: {
         marginTop: "50px" 
