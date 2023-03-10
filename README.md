@@ -16,14 +16,14 @@ Past IoT solutions lacked an extensible topology and a long-ranged radio, often 
 Contemporary techniques in the detection of wildfires – such as aerial, visual, or infrared – require the fire to have already grown considerably.
 
 <h2>Project Details: </h2>
-- Arduino Nano: small, low power, extensible microcontroller
-- ESP-8266: similar to the nano, but with WiFi capabilities.
-- Ra-02 LoRa Module: SPI interface, long-range, low-power module with interrupts. 
-- MongoDB & Mongoose: Development database and its Node.js interfacing library. 
-- Express.js: A web application framework for Node.js.
-- React.js: JS library for reactive web pages.
-- Google Maps API: API to display interactive maps.
-- Pandas: Python library for handling mass data.
+ - Arduino Nano: small, low power, extensible microcontroller <br>
+ - ESP-8266: similar to the nano, but with WiFi capabilities. <br>
+ - Ra-02 LoRa Module: SPI interface, long-range, low-power module with interrupts. <br>
+ - MongoDB & Mongoose: Development database and its Node.js interfacing library. <br>
+ - Express.js: A web application framework for Node.js. <br>
+ - React.js: JS library for reactive web pages. <br>
+ - Google Maps API: API to display interactive maps. <br>
+ - Pandas: Python library for handling mass data. <br>
 
 <h2>Setup:</h2>
 Installation:
