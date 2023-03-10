@@ -53,3 +53,4 @@ UI Screenshot:
 
 ![image](https://user-images.githubusercontent.com/77950550/224387430-be3252d5-e3ed-4d2b-94e6-9bb13b9a8d2d.png)
 
+Enter Hardware Screenshot Here
