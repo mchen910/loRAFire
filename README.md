@@ -26,18 +26,16 @@ Contemporary techniques in the detection of wildfires – such as aerial, visual
  - Pandas: Python library for handling mass data. <br>
 
 <h2>Setup:</h2>
-Installation:
- - Clone repo and install neccesary packages from package.json files in both root and _client_ folders. 
-MongoDB:
-- Sign up for a MongoDB account, create a data cluster, and copy paste your connection key into _.env_ under the _DATABASE_URI_ section.
-Hardware Setup:
-...
-Google Maps API:
-- Project employs Google Maps API to visualize geographical data to impose node markers upon. In order to set this up, follow this great post from Google: 
+Installation: <br>
+ - Clone repo and install neccesary packages from package.json files in both root and _client_ folders. <br>
+MongoDB: <br>
+- Sign up for a MongoDB account, create a data cluster, and copy paste your connection key into _.env_ under the _DATABASE_URI_ section. <br>
+Hardware Setup: <br>
+... <br>
+Google Maps API: <br>
+- Project employs Google Maps API to visualize geographical data to impose node markers upon. In order to set this up, follow this great post from Google: https://support.google.com/looker-studio/answer/10988075?hl=en <br>
 
-https://support.google.com/looker-studio/answer/10988075?hl=en
-
-- After ensuring all has been set up, enter your API key on line 24 of _src/pages/components/Map.js_.
+- After ensuring all has been set up, enter your API key on line 24 of _src/pages/components/Map.js_. 
 
 ![image](https://user-images.githubusercontent.com/77950550/224384180-e7780625-506f-49b2-91b1-cc9645b2b296.png)
 
