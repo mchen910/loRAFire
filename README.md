@@ -29,15 +29,21 @@ MongoDB:
 Hardware Setup:
 ...
 Google Maps API:
-- Project employs Google Maps API to visualize geographical data to impose node markers upon. In order to set this up, follow this great post from Google: https://support.google.com/looker-studio/answer/10988075?hl=en
+- Project employs Google Maps API to visualize geographical data to impose node markers upon. In order to set this up, follow this great post from Google: 
+
+https://support.google.com/looker-studio/answer/10988075?hl=en
+
 - After ensuring all has been set up, enter your API key on line 24 of _src/pages/components/Map.js_.
+
 ![image](https://user-images.githubusercontent.com/77950550/224384180-e7780625-506f-49b2-91b1-cc9645b2b296.png)
+
 Running the project:
 - API and client are run on different ports. If using VS, split terminal into two seperate processes, and run the following commands __in the root dir__:
   - npm run start //starts server
   - npm run client //starts client
 
 ##Engineering NB:
+
 [Engineering Notebook.pdf](https://github.com/beranki/loRAFire/files/10944520/Engineering.Notebook.pdf)
 
 
