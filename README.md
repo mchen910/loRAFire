@@ -1,6 +1,18 @@
 <h1>Website and API for Synopsys Science Fair 22-23 Project</h1>
 <h2>Robust, Lora-based Mesh Network - Solution for Wildfire Detection and Growth Forecast through Custom Prediction Algorithm</h2>
 
+---
+
+UI Screenshot:
+
+![image](https://user-images.githubusercontent.com/77950550/224387430-be3252d5-e3ed-4d2b-94e6-9bb13b9a8d2d.png)
+
+---
+
+Enter Hardware Screenshot Here
+
+---
+
 Find API routes in routes/api.js <br>
 Find API implementation & documentation in controllers/_module_.js <br>
 Find DB schema in models/_schema_.js <br>
@@ -26,31 +38,26 @@ Contemporary techniques in the detection of wildfires – such as aerial, visual
  - Pandas: Python library for handling mass data. <br>
 
 <h2>Setup:</h2>
-Installation: <br>
- - Clone repo and install neccesary packages from package.json files in both root and _client_ folders. <br>
-MongoDB: <br>
-- Sign up for a MongoDB account, create a data cluster, and copy paste your connection key into _.env_ under the _DATABASE_URI_ section. <br>
-Hardware Setup: <br>
+<h3>Installation:</h3> <br>
+ - Clone repo and install neccesary packages from package.json files in both root and <em>client</em> folders. <br>
+<h3>MongoDB:</h3> <br>
+- Sign up for a MongoDB account, create a data cluster, and copy paste your connection key into <em>.env</em> under the <em>DATABASE_URI</em> section. <br>
+<h3>Hardware Setup:</h3> <br>
 ... <br>
-Google Maps API: <br>
+<h3>Google Maps API:</h3> <br>
 - Project employs Google Maps API to visualize geographical data to impose node markers upon. In order to set this up, follow this great post from Google: https://support.google.com/looker-studio/answer/10988075?hl=en <br>
 
-- After ensuring all has been set up, enter your API key on line 24 of _src/pages/components/Map.js_. 
+- After ensuring all has been set up, enter your API key on line 24 of *src/pages/components/Map.js*. 
 
 ![image](https://user-images.githubusercontent.com/77950550/224384180-e7780625-506f-49b2-91b1-cc9645b2b296.png)
 
-Running the project:
-- API and client are run on different ports. If using VS, split terminal into two seperate processes, and run the following commands __in the root dir__:
-  - npm run start //starts server
-  - npm run client //starts client
+<h3>Running the project: </h3>
+- API and client are run on different ports. If using VS, split terminal into two seperate processes, and run the following commands <em>in the root dir</em>: <br>
+<b> 1) npm run start </b> //starts server <br> 
+<b> 2) npm run client </b> //starts client  <br> 
 
-<h2>Engineering NB:</h2>
+<h2>Engineering Notebook: </h2> 
 
-[Engineering Notebook.pdf](https://github.com/beranki/loRAFire/files/10944520/Engineering.Notebook.pdf)
+[Engineering Notebook.pdf](https://github.com/beranki/loRAFire/files/10952026/Engineering.Notebook.pdf)
 
-
-UI Screenshot:
-
-![image](https://user-images.githubusercontent.com/77950550/224387430-be3252d5-e3ed-4d2b-94e6-9bb13b9a8d2d.png)
-
-Enter Hardware Screenshot Here
+![](https://user-images.githubusercontent.com/77950550/224572047-0276ec26-0316-41ac-9474-91e6d7daa42c.jpg)
