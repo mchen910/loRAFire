@@ -20,6 +20,8 @@ Find Frontend Impl. in _client/src_ folder <br>
 
 API Run on port 8000 (change via .env file), Frontend Run on port 3000
 
+---
+
 <h2>Motivations</h2>
 
 The ever more frequent natural disasters are harmful tragedies that develop from an unfortunate environmental coincidence. Some disasters have quantifiable signs that can be compiled into a measure of risk. Though the sensor technologies exist, there lacks a system to connect a large network of sensors to survey the environment. The project aims to develop a software framework for IoT sensor networks to be used in environmental surveillance. It presents a networking protocol capable of maintaining a mesh topology, allowing for a greater covered area. 
@@ -36,6 +38,8 @@ Contemporary techniques in the detection of wildfires – such as aerial, visual
  - React.js: JS library for reactive web pages. <br>
  - Google Maps API: API to display interactive maps. <br>
  - Pandas: Python library for handling mass data. <br>
+
+---
 
 <h2>Setup:</h2>
 <h3>Installation:</h3> <br>
@@ -56,8 +60,8 @@ Contemporary techniques in the detection of wildfires – such as aerial, visual
 <b> 1) npm run start </b> //starts server <br> 
 <b> 2) npm run client </b> //starts client  <br> 
 
-<h2>Engineering Notebook: </h2> 
+---
 
-[Engineering Notebook.pdf](https://github.com/beranki/loRAFire/files/10952026/Engineering.Notebook.pdf)
+<h2><a href="https://github.com/beranki/loRAFire/files/10952026/Engineering.Notebook.pdf" class="topic" style="padding-bottom:40px; font-size: 200px;" >Engineering Notebook: </a></h2>
 
 ![](https://user-images.githubusercontent.com/77950550/224572047-0276ec26-0316-41ac-9474-91e6d7daa42c.jpg)
