@@ -60,6 +60,10 @@ Contemporary techniques in the detection of wildfires – such as aerial, visual
 1) `npm run start` //starts server
 2) `npm run client` //starts client
 
+## Hardware Source Files:
+- Repository for LoRaNet Library: [repo](https://github.com/PaddingProductions/LoRaNetLib) 
+- Repository for LoRaNet Nodes, Gateways & Utilities: [repo](https://github.com/PaddingProductions/LoRaNet)
+- Repository for MQ2 Sensor Driver: [repo](https://github.com/PaddingProductions/MQ2-driver)
 ---
 
 <h2><a href="https://github.com/beranki/loRAFire/files/10952026/Engineering.Notebook.pdf" class="topic" style="padding-bottom:40px; font-size: 200px;" >Engineering Notebook: </a></h2>
