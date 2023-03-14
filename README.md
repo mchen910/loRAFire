@@ -64,4 +64,4 @@ Contemporary techniques in the detection of wildfires – such as aerial, visual
 
 <h2><a href="https://github.com/beranki/loRAFire/files/10952026/Engineering.Notebook.pdf" class="topic" style="padding-bottom:40px; font-size: 200px;" >Engineering Notebook: </a></h2>
 
-![](https://user-images.githubusercontent.com/77950550/224572047-0276ec26-0316-41ac-9474-91e6d7daa42c.jpg):wq
+![](https://user-images.githubusercontent.com/77950550/224572047-0276ec26-0316-41ac-9474-91e6d7daa42c.jpg)
