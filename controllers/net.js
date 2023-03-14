@@ -59,6 +59,13 @@ exports.packet_handler = [
                     const humidity = intFromBytes(buf, hdr_len + 1, 1);
                     const mq2 = intFromBytes(buf, hdr_len + 2, 2);
                 
+					// ====== DEMO Purposes =======
+					if (temp == 100) {
+						console.log("BUTTON PRESSED! Temp received: ", temp);
+					}
+
+					// ============================
+					
                     historyController.put(srcID, packetID, Date.now(), temp, humidity, mq2);
                     res.status(200).send("ACK from Node.js");
                 break;

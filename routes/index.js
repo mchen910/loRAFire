@@ -3,7 +3,7 @@ const router = express.Router();
 const path = require("path");
 
 router.get("/", (req, res) => {
-    res.send("API Page - refer to route 3000 on localhost for frontend.");
+    res.send("API Page - refer to port 3000 for web client.");
 });
 
 module.exports = router;
