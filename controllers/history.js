@@ -74,17 +74,17 @@ exports.get_all = [
             return;
         }
         if (req.query.cutoff === undefined) 
-            req.query.end = Date.now()
+            req.query.cutoff = Date.now()
         
         // req.query.start/end are in milliseconds
-        let cutoff = new Date(parseInt(req.query.start));
+        let cutoff = new Date(req.query.cutoff);
 
-        History.find({ 'timestamp': { $lt: cutoff } }).exec( (err, results) => {
+        History.find({ 'time': { $lt: cutoff } }).exec( (err, results) => {
             if (err) 
                 return next(err);
             const out = {};
             for (const i of results) {
-                if (!(i.srcID in out) || out[i.srcID].createdAt < i.createdAt) {
+                if (!(i.srcID in out) || out[i.srcID].time < i.time) {
                     out[i.srcID] = i;
                 } 
             }
@@ -106,8 +106,7 @@ exports.delete = cutoff => {
 }
 
 // put (id, time, temp, humidity): PUTs new history instance, sets last ping of node
-exports.put = (id, time, temp, humidity) => {
-    console.log("History PUT");
+exports.put = (id, packetID, time, temp, humidity) => {
     if (!id) {
         console.log("no ID provided.");
         return;
@@ -117,7 +116,9 @@ exports.put = (id, time, temp, humidity) => {
     var history = new History({
         srcID: id,
         temp: temp,
+		packetID: packetID,
         humidity: humidity,
+		time: Date.now(),
     });
 
     // Save

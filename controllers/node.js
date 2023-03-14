@@ -44,7 +44,13 @@ exports.put = [
                 longitude: req.query.longitude
             },
         });
-        node.save( err => err ? next(err) : res.status(201).json(node) );
+        node.save( err => {
+            if (err && err.code !== 11000) {
+                next(err);
+            } else {
+                res.status(201).json(node) 
+            }
+        });
     }
 ];
 

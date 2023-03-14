@@ -5,6 +5,7 @@ var Types = mongoose.Types;
 
 const HistorySchema = new Schema({
     srcID: Number,
+	packetID: Number,
     temp: Number,
     humidity: Number,
     smokeLevel: Number,

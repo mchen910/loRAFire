@@ -10,7 +10,6 @@ let visited = [];
 
 async function flood (id) {
     visited.push(id);
-    console.log("processing node: ", id);
 
     const node = await Node.findById(id);
 
@@ -63,8 +62,6 @@ async function flood (id) {
     
         node.analysis.riskLvl = riskLvl;
         changed = true;
-
-        console.log("output level: ", riskLvl);
     }
 
     // If analysis result changed, DFS to nodes within a certain distance. (propogation)
